@@ -5,7 +5,6 @@ go 1.24.1
 toolchain go1.24.6
 
 require (
-	github.com/dilllxd/hostredirect v0.0.0-20240729194429-c814a22f0fdd
 	github.com/go-logr/logr v1.4.3
 	github.com/robinbraemer/event v0.1.1
 	github.com/spf13/viper v1.21.0
