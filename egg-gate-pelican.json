@@ -6,7 +6,7 @@
     },
     "exported_at": "2026-01-28T00:00:00+00:00",
     "name": "gate-pelican",
-    "author": "gate-pelican",
+    "author": "admin@frflo.ovh",
     "uuid": "cd1c6035-7b36-4fd6-8a08-1e518b9f5828",
     "description": "Gate proxy Minecraft avec plugin Pelican pour la gestion automatique des serveurs",
     "features": null,
