@@ -1,0 +1,543 @@
+package detection
+
+import (
+	"context"
+	"strings"
+	"testing"
+
+	guuid "github.com/google/uuid"
+	"go.minekube.com/common/minecraft/component"
+	"go.minekube.com/gate/pkg/command"
+	"go.minekube.com/gate/pkg/util/permission"
+)
+
+// ─── mock helpers ─────────────────────────────────────────────────────────────
+
+// mockSource is a fake command.Source used to capture messages sent during
+// command execution without needing a real Gate proxy.
+type mockSource struct {
+	perms    map[string]bool
+	messages []string
+}
+
+func newMockSource(perms ...string) *mockSource {
+	m := &mockSource{perms: make(map[string]bool)}
+	for _, p := range perms {
+		m.perms[p] = true
+	}
+	return m
+}
+
+func (m *mockSource) HasPermission(perm string) bool {
+	return m.perms[perm]
+}
+
+func (m *mockSource) PermissionValue(perm string) permission.TriState {
+	if m.HasPermission(perm) {
+		return permission.True
+	}
+	return permission.False
+}
+
+func (m *mockSource) SendMessage(msg component.Component, opts ...command.MessageOption) error {
+	if t, ok := msg.(*component.Text); ok {
+		m.messages = append(m.messages, t.Content)
+	}
+	return nil
+}
+
+func (m *mockSource) lastMessage() string {
+	if len(m.messages) == 0 {
+		return ""
+	}
+	return m.messages[len(m.messages)-1]
+}
+
+func (m *mockSource) allMessages() string {
+	return strings.Join(m.messages, "\n")
+}
+
+// ─── configHolder tests ───────────────────────────────────────────────────────
+
+// TestConfigHolderGetReturnsInitial verifies that get() returns the initial config.
+func TestConfigHolderGetReturnsInitial(t *testing.T) {
+	cfg := &DetectionConfig{}
+	cfg.Main.Settings.Debug = true
+	h := newConfigHolder(cfg, "/tmp")
+
+	got := h.get()
+	if !got.Main.Settings.Debug {
+		t.Fatal("expected Debug=true from initial config")
+	}
+}
+
+// TestConfigHolderReloadBadPath verifies that reload() fails with a descriptive
+// error when the resources directory does not exist.
+func TestConfigHolderReloadBadPath(t *testing.T) {
+	cfg := &DetectionConfig{}
+	h := newConfigHolder(cfg, "/nonexistent/path/to/resources")
+
+	err := h.reload()
+	if err == nil {
+		t.Fatal("expected error for missing resources path, got nil")
+	}
+	// Original config is preserved on reload failure.
+	if h.get() != cfg {
+		t.Fatal("config should be unchanged after failed reload")
+	}
+}
+
+// TestConfigHolderReloadSucceeds tests a successful reload by calling LoadDetectionConfig
+// indirectly through a configHolder that points to the real submodule resources.
+// This test is skipped unless the submodule is present (same guard as T4/T5 tests).
+func TestConfigHolderReloadSucceeds(t *testing.T) {
+	paths, err := ResolveSubmodulePaths("../..")
+	if err != nil {
+		t.Skip("HackedServer submodule not present, skipping:", err)
+	}
+	import_dir := paths.Config
+	_ = import_dir
+
+	initial := &DetectionConfig{}
+	h := newConfigHolder(initial, paths.Config[:len(paths.Config)-len("config.toml")])
+
+	if err := h.reload(); err != nil {
+		t.Fatalf("reload failed: %v", err)
+	}
+	loaded := h.get()
+	if loaded == initial {
+		t.Fatal("expected a new config instance after reload")
+	}
+}
+
+// ─── gateUUIDToGoogle tests ───────────────────────────────────────────────────
+
+// TestGateUUIDToGoogle verifies round-trip conversion between Gate's UUID type
+// and github.com/google/uuid.
+func TestGateUUIDToGoogle(t *testing.T) {
+	expected := guuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+	gateID := [16]byte(expected)
+	got := gateUUIDToGoogle(gateID)
+	if got != expected {
+		t.Fatalf("UUID mismatch: got %v, want %v", got, expected)
+	}
+}
+
+// TestGateUUIDToGoogleNil verifies that a nil Gate UUID converts to guuid.Nil.
+func TestGateUUIDToGoogleNil(t *testing.T) {
+	var gateID [16]byte
+	got := gateUUIDToGoogle(gateID)
+	if got != guuid.Nil {
+		t.Fatalf("expected Nil UUID, got %v", got)
+	}
+}
+
+// ─── handleReload tests ───────────────────────────────────────────────────────
+
+// TestCommandReloadBadPath verifies that /detection reload sends a failure
+// message when the resources directory is missing.
+func TestCommandReloadBadPath(t *testing.T) {
+	src := newMockSource("hackedserver.command", "hackedserver.command.reload")
+	h := newConfigHolder(&DetectionConfig{}, "/nonexistent/path")
+
+	// Build a minimal brigodier manager and register the command.
+	var mgr command.Manager
+	mgr.Register(newDetectionCommand(nil, NewPlayerStore(), h))
+
+	err := mgr.Do(context.Background(), src, "detection reload")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(src.lastMessage(), "reload failed") {
+		t.Fatalf("expected 'reload failed' message, got: %q", src.lastMessage())
+	}
+}
+
+// TestCommandReloadPermissionDenied verifies reload is blocked without the
+// hackedserver.command.reload permission.
+func TestCommandReloadPermissionDenied(t *testing.T) {
+	src := newMockSource("hackedserver.command") // reload perm missing
+	h := newConfigHolder(&DetectionConfig{}, "/tmp")
+
+	var mgr command.Manager
+	mgr.Register(newDetectionCommand(nil, NewPlayerStore(), h))
+
+	// Brigodier returns an error (not a message) when the requirement fails.
+	err := mgr.Do(context.Background(), src, "detection reload")
+	// No message should have been sent — the command was gated by Requires.
+	if len(src.messages) > 0 {
+		t.Fatalf("expected no message when permission denied, got: %v", src.messages)
+	}
+	_ = err // brigodier returns "unknown command" error for failed requirement
+}
+
+// ─── handleList tests ─────────────────────────────────────────────────────────
+
+// TestCommandListEmpty verifies that /detection list replies "No players..."
+// when the store has no players with generic checks.
+// The list handler gathers online players from the proxy; with zero online
+// players (empty slice) it should report "No players detected".
+func TestCommandListEmpty(t *testing.T) {
+	src := newMockSource("hackedserver.command", "hackedserver.command.list")
+
+	// Call handleListFromEntries directly with an empty slice to test the
+	// formatting logic without needing a real proxy.
+	ctx := fakeCommandContext(src)
+	err := handleListFromEntries(ctx, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(src.lastMessage(), "No players") {
+		t.Fatalf("expected 'No players' message, got: %q", src.lastMessage())
+	}
+}
+
+// TestCommandCheckUnknownPlayer verifies that formatCheckOutput for a player
+// with no checks reports "none" correctly (the proxy lookup branch is tested
+// separately; here we test the formatting path directly).
+func TestCommandCheckUnknownPlayer(t *testing.T) {
+	src := newMockSource("hackedserver.command", "hackedserver.command.check")
+	store := NewPlayerStore()
+	id := guuid.MustParse("550e8400-e29b-41d4-a716-446655440099")
+	dp := store.Get(id) // brand-new player with no checks
+
+	ctx := fakeCommandContext(src)
+	err := formatCheckOutput(ctx, "GhostPlayer", dp, &DetectionConfig{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(src.lastMessage(), "none") {
+		t.Fatalf("expected 'none' for player with no checks, got: %q", src.lastMessage())
+	}
+	if !strings.Contains(src.lastMessage(), "GhostPlayer") {
+		t.Fatalf("expected player name in output, got: %q", src.lastMessage())
+	}
+}
+
+// TestCommandCheckKnownPlayerGenericChecks verifies that /detection check
+// displays generic checks for a player the store knows about.
+func TestCommandCheckKnownPlayerGenericChecks(t *testing.T) {
+	src := newMockSource("hackedserver.command", "hackedserver.command.check")
+	store := NewPlayerStore()
+	id := guuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	dp := store.Get(id)
+	dp.AddGenericCheck("labymod_v1")
+	dp.AddGenericCheck("fabric")
+
+	ctx := fakeCommandContext(src)
+	err := formatCheckOutput(ctx, "TestPlayer", dp, &DetectionConfig{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	msg := src.allMessages()
+	if !strings.Contains(msg, "fabric") {
+		t.Fatalf("expected 'fabric' in output, got: %q", msg)
+	}
+	if !strings.Contains(msg, "labymod_v1") {
+		t.Fatalf("expected 'labymod_v1' in output, got: %q", msg)
+	}
+	if !strings.Contains(msg, "TestPlayer") {
+		t.Fatalf("expected player name in output, got: %q", msg)
+	}
+}
+
+// ─── TestCommandCheckList ─────────────────────────────────────────────────────
+
+// TestCommandCheckList exercises formatCheckOutput and handleListFromEntries
+// for the full range of output scenarios: empty data, populated generic checks,
+// forge mods (shown/hidden), lunar mods, bedrock detection, and sorted list output.
+func TestCommandCheckList(t *testing.T) {
+	t.Run("check_no_data", func(t *testing.T) {
+		// A fresh DetectedPlayer with no checks/mods should show "none" for generic
+		// and omit forge/lunar sections (ShowModsInCheck defaults to false).
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		store := NewPlayerStore()
+		id := guuid.MustParse("cccccccc-0000-0000-0000-000000000001")
+		dp := store.Get(id)
+
+		if err := formatCheckOutput(ctx, "Alice", dp, &DetectionConfig{}); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		msg := src.lastMessage()
+		if !strings.Contains(msg, "Alice") {
+			t.Fatalf("expected player name in output, got: %q", msg)
+		}
+		if !strings.Contains(msg, "Generic checks: none") {
+			t.Fatalf("expected 'Generic checks: none', got: %q", msg)
+		}
+	})
+
+	t.Run("check_generic_checks_sorted", func(t *testing.T) {
+		// Generic checks must appear sorted alphabetically.
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		store := NewPlayerStore()
+		id := guuid.MustParse("cccccccc-0000-0000-0000-000000000002")
+		dp := store.Get(id)
+		dp.AddGenericCheck("zap_client")
+		dp.AddGenericCheck("fabric")
+		dp.AddGenericCheck("labymod_v1")
+
+		if err := formatCheckOutput(ctx, "Bob", dp, &DetectionConfig{}); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		msg := src.lastMessage()
+		for _, name := range []string{"fabric", "labymod_v1", "zap_client"} {
+			if !strings.Contains(msg, name) {
+				t.Fatalf("expected check %q in output, got: %q", name, msg)
+			}
+		}
+		posFabric := strings.Index(msg, "fabric")
+		posLaby := strings.Index(msg, "labymod_v1")
+		posZap := strings.Index(msg, "zap_client")
+		if !(posFabric < posLaby && posLaby < posZap) {
+			t.Fatalf("checks not sorted alphabetically: %q", msg)
+		}
+	})
+
+	t.Run("check_forge_mods_shown", func(t *testing.T) {
+		// Forge mods appear only when ShowModsInCheck=true and forge data is known.
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		store := NewPlayerStore()
+		id := guuid.MustParse("cccccccc-0000-0000-0000-000000000003")
+		dp := store.Get(id)
+		dp.AddForgeMods([]ForgeModInfo{
+			{ModID: "jei", Version: "10.0.0"},
+			{ModID: "appleskin"},
+		})
+
+		cfg := &DetectionConfig{}
+		cfg.Forge.Settings.ShowModsInCheck = true
+		cfg.Forge.Settings.ShowModVersions = true
+
+		if err := formatCheckOutput(ctx, "Carol", dp, cfg); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		msg := src.lastMessage()
+		for _, want := range []string{"appleskin", "jei", "10.0.0"} {
+			if !strings.Contains(msg, want) {
+				t.Fatalf("expected %q in forge mod output, got: %q", want, msg)
+			}
+		}
+		// appleskin < jei alphabetically
+		if strings.Index(msg, "appleskin") >= strings.Index(msg, "jei") {
+			t.Fatalf("forge mods not sorted alphabetically: %q", msg)
+		}
+	})
+
+	t.Run("check_forge_mods_hidden_without_flag", func(t *testing.T) {
+		// Forge mods must NOT appear when ShowModsInCheck=false.
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		store := NewPlayerStore()
+		id := guuid.MustParse("cccccccc-0000-0000-0000-000000000004")
+		dp := store.Get(id)
+		dp.AddForgeMods([]ForgeModInfo{{ModID: "jei"}})
+
+		if err := formatCheckOutput(ctx, "Dave", dp, &DetectionConfig{}); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if strings.Contains(src.lastMessage(), "jei") {
+			t.Fatalf("forge mods must not appear when ShowModsInCheck=false, got: %q", src.lastMessage())
+		}
+	})
+
+	t.Run("check_lunar_mods_shown", func(t *testing.T) {
+		// Lunar mods appear only when cfg.Lunar.Enabled=true and ShowModsInCheck=true.
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		store := NewPlayerStore()
+		id := guuid.MustParse("cccccccc-0000-0000-0000-000000000005")
+		dp := store.Get(id)
+		dp.SetLunarMods([]LunarModInfo{
+			{ID: "sodium", DisplayName: "Sodium", Version: "0.5.0", Type: "TYPE_FABRIC_EXTERNAL"},
+			{ID: "optifine", DisplayName: "OptiFine", Version: "HD_U_I5", Type: "TYPE_FORGE_EXTERNAL"},
+		})
+
+		cfg := &DetectionConfig{}
+		cfg.Lunar.Enabled = true
+		cfg.Lunar.Settings.ShowModsInCheck = true
+		cfg.Lunar.Settings.ShowModVersions = true
+		cfg.Lunar.Settings.ShowModTypes = true
+
+		if err := formatCheckOutput(ctx, "Eve", dp, cfg); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		msg := src.lastMessage()
+		for _, want := range []string{"sodium", "optifine", "0.5.0", "TYPE_FABRIC_EXTERNAL"} {
+			if !strings.Contains(msg, want) {
+				t.Fatalf("expected %q in lunar mod output, got: %q", want, msg)
+			}
+		}
+	})
+
+	t.Run("check_bedrock_shown", func(t *testing.T) {
+		// When bedrock is detected the output must include "Bedrock: yes".
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		store := NewPlayerStore()
+		id := guuid.MustParse("cccccccc-0000-0000-0000-000000000006")
+		dp := store.Get(id)
+		dp.SetBedrockDetected(true)
+
+		if err := formatCheckOutput(ctx, "Flint", dp, &DetectionConfig{}); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !strings.Contains(src.lastMessage(), "Bedrock: yes") {
+			t.Fatalf("expected 'Bedrock: yes', got: %q", src.lastMessage())
+		}
+	})
+
+	t.Run("check_bedrock_not_shown_when_not_detected", func(t *testing.T) {
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		store := NewPlayerStore()
+		id := guuid.MustParse("cccccccc-0000-0000-0000-000000000007")
+		dp := store.Get(id)
+
+		if err := formatCheckOutput(ctx, "Grace", dp, &DetectionConfig{}); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if strings.Contains(src.lastMessage(), "Bedrock") {
+			t.Fatalf("bedrock must not appear when not detected, got: %q", src.lastMessage())
+		}
+	})
+
+	t.Run("list_empty", func(t *testing.T) {
+		// Empty entry slice → "No players..." message.
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		if err := handleListFromEntries(ctx, nil); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !strings.Contains(src.lastMessage(), "No players") {
+			t.Fatalf("expected 'No players' in empty list output, got: %q", src.lastMessage())
+		}
+	})
+
+	t.Run("list_sorted_populated", func(t *testing.T) {
+		// Multiple entries must appear sorted by player name.
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		entries := []namedCheckEntry{
+			{name: "Zara", checks: []string{"fabric"}},
+			{name: "Alice", checks: []string{"labymod_v1", "fabric"}},
+			{name: "Mike", checks: []string{"badlion"}},
+		}
+		if err := handleListFromEntries(ctx, entries); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		msg := src.lastMessage()
+		for _, name := range []string{"Alice", "Mike", "Zara"} {
+			if !strings.Contains(msg, name) {
+				t.Fatalf("expected %q in list output, got: %q", name, msg)
+			}
+		}
+		posAlice := strings.Index(msg, "Alice")
+		posMike := strings.Index(msg, "Mike")
+		posZara := strings.Index(msg, "Zara")
+		if !(posAlice < posMike && posMike < posZara) {
+			t.Fatalf("list entries not sorted alphabetically: %q", msg)
+		}
+		if !strings.Contains(msg, "3") {
+			t.Fatalf("expected count 3 in list header, got: %q", msg)
+		}
+	})
+
+	t.Run("list_checks_per_player_shown", func(t *testing.T) {
+		// Each player's checks must appear next to their name in the list output.
+		src := newMockSource()
+		ctx := fakeCommandContext(src)
+		entries := []namedCheckEntry{
+			{name: "Alpha", checks: []string{"fabric", "labymod_v1"}},
+		}
+		if err := handleListFromEntries(ctx, entries); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		msg := src.lastMessage()
+		for _, chk := range []string{"fabric", "labymod_v1"} {
+			if !strings.Contains(msg, chk) {
+				t.Fatalf("expected check %q in list output, got: %q", chk, msg)
+			}
+		}
+	})
+}
+
+// ─── test helpers ─────────────────────────────────────────────────────────────
+
+// fakeCommandContext builds a minimal *command.Context from a source.
+// Needed because command.Context embeds a brigodier.CommandContext which
+// is not directly constructable; we use the manager execution path instead.
+// For direct-call tests (no brigodier routing) we craft a thin wrapper.
+func fakeCommandContext(src command.Source) *command.Context {
+	// Execute a no-op command through the manager to get a real context.
+	// Since we just need Source injection we build a minimal stub.
+	return &command.Context{Source: src}
+}
+
+// fakePlayer is a minimal stand-in for proxy.Player used in unit tests.
+// It carries just the fields that handleCheck/handleList access.
+type fakePlayer struct {
+	id       guuid.UUID
+	username string
+}
+
+// handleCheckWithPlayer is a test-only variant of handleCheck that accepts a
+// fakePlayer instead of going through proxy.PlayerByName.  This avoids the
+// need for a real *proxy.Proxy in tests that focus on output formatting.
+func handleCheckWithPlayer(
+	c *command.Context,
+	player *fakePlayer,
+	store *PlayerStore,
+	cfgHolder *configHolder,
+) error {
+	dp := store.Get(player.id)
+	cfg := cfgHolder.get()
+
+	var b strings.Builder
+	b.WriteString("Detection info for " + player.username + ":\n")
+
+	checks := dp.GenericChecks()
+	sortStrings(checks)
+	if len(checks) > 0 {
+		b.WriteString("  Generic checks: " + strings.Join(checks, ", ") + "\n")
+	} else {
+		b.WriteString("  Generic checks: none\n")
+	}
+
+	if cfg.Forge.Settings.ShowModsInCheck && dp.HasForgeModsData() {
+		mods := dp.ForgeMods()
+		if len(mods) > 0 {
+			b.WriteString("  Forge mods:\n")
+			for _, m := range mods {
+				b.WriteString("    - " + m.ModID + "\n")
+			}
+		}
+	}
+
+	if cfg.Lunar.Enabled && cfg.Lunar.Settings.ShowModsInCheck && dp.HasLunarModsData() {
+		mods := dp.LunarMods()
+		if len(mods) > 0 {
+			b.WriteString("  Lunar mods:\n")
+			for _, m := range mods {
+				b.WriteString("    - " + m.ID + "\n")
+			}
+		}
+	}
+
+	if dp.IsBedrockDetected() {
+		b.WriteString("  Bedrock: yes\n")
+	}
+
+	return c.Source.SendMessage(&component.Text{Content: b.String()})
+}
+
+func sortStrings(ss []string) {
+	for i := 1; i < len(ss); i++ {
+		for j := i; j > 0 && ss[j] < ss[j-1]; j-- {
+			ss[j], ss[j-1] = ss[j-1], ss[j]
+		}
+	}
+}
