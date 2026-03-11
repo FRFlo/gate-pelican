@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package lunarclient.apollo.common.v1;
+
+option go_package = "github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1";
+
+// A reference to a specific version (released by Mojang) of Minecraft.
+// For example, Minecraft 1.8.9, or 1.19.4
+message MinecraftVersion {
+  // The enum encoding of this version. For example, "v1_8_9"
+  string enum = 1;
+}
+
+// A reference to a specific version (released by Moonsworth) of the
+// Lunar Client modpack.
+message LunarClientVersion {
+  // The Git branch this version was based on
+  string git_branch = 1;
+
+  // The Git commit this version was based on
+  string git_commit = 2;
+
+  // The semver encoding of this version. For example, "2.5.1"
+  string semver = 3;
+}

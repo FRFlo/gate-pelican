@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package lunarclient.apollo.player.v1;
+
+import "google/protobuf/struct.proto";
+import "lunarclient/apollo/common/v1/version.proto";
+
+option go_package = "github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1";
+
+message ModMessage {
+  // ID (ex: `sodium`) of this mod. Exact meaning varies based on the loader
+  string id = 1;
+
+  // Display name (ex: `Sodium`) of this mod.
+  string name = 2;
+
+  // Version (ex: `1.2.21`) of this mod.
+  string version = 3;
+
+  // The type of mod this is
+  Type type = 4;
+
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+
+    // Internal (shipped in Lunar) Fabric-based mod
+    TYPE_FABRIC_INTERNAL = 1;
+
+    // External (loaded from mods folder) Fabric-based mod
+    TYPE_FABRIC_EXTERNAL = 2;
+
+    // Internal (shipped in Lunar) Forge-based mod
+    TYPE_FORGE_INTERNAL = 3;
+
+    // External (loaded from mods folder) Forge-based mod
+    TYPE_FORGE_EXTERNAL = 4;
+  }
+}
+
+enum EmbeddedCheckoutSupport {
+  EMBEDDED_CHECKOUT_SUPPORT_UNSPECIFIED = 0;
+
+  // External checkout is supported as a game overlay
+  EMBEDDED_CHECKOUT_SUPPORT_OVERLAY = 1;
+
+  // Embedded checkout is supported in an external window
+  EMBEDDED_CHECKOUT_SUPPORT_WINDOW = 2;
+}
+
+message PlayerHandshakeMessage {
+  lunarclient.apollo.common.v1.MinecraftVersion minecraft_version = 1;
+  lunarclient.apollo.common.v1.LunarClientVersion lunar_client_version = 2;
+  repeated ModMessage installed_mods = 3;
+  EmbeddedCheckoutSupport embedded_checkout_support = 4;
+  map<string, google.protobuf.Value> mod_status = 5;
+}

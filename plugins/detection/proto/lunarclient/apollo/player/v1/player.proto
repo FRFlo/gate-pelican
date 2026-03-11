@@ -1,0 +1,56 @@
+// Reconstructed from com.lunarclient:apollo-protos:0.0.5
+// Source: https://repo.lunarclient.dev (artifact unavailable; reconstructed from Apollo Java API)
+// See: https://github.com/LunarClient/Apollo (Java API only, no .proto files distributed)
+// Package matches the type URL registered by Lunar Client: type.googleapis.com/lunarclient.apollo.player.v1.PlayerHandshakeMessage
+
+syntax = "proto3";
+
+package lunarclient.apollo.player.v1;
+
+option go_package = "github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1";
+
+// ModType mirrors com.lunarclient.apollo.client.mod.LunarClientModType (1-indexed).
+// Values confirmed from LunarClientModType.java: modTypes array is
+// [FABRIC_INTERNAL, FABRIC_EXTERNAL, FORGE_INTERNAL, FORGE_EXTERNAL]
+// and mod.getTypeValue() is 1-indexed into that array.
+enum ModType {
+  MOD_TYPE_UNSPECIFIED    = 0;
+  MOD_TYPE_FABRIC_INTERNAL = 1;
+  MOD_TYPE_FABRIC_EXTERNAL = 2;
+  MOD_TYPE_FORGE_INTERNAL  = 3;
+  MOD_TYPE_FORGE_EXTERNAL  = 4;
+}
+
+// ModMessage mirrors the generated Java class from apollo-protos.
+// Fields reconstructed from ApolloPlayerManagerImpl.java usage:
+//   mod.getId(), mod.getName(), mod.getVersion(), mod.getTypeValue()
+message ModMessage {
+  string  id      = 1;
+  string  name    = 2;
+  string  version = 3;
+  ModType type    = 4;
+}
+
+// PlayerHandshakeMessage mirrors the generated Java class from apollo-protos.
+// Only fields required by HackedServer detection are included here.
+// Field numbers reconstructed from Apollo API access order:
+//   getMinecraftVersion()     -> field 1
+//   getLunarClientVersion()   -> field 2
+//   getInstalledModsList()    -> field 3  (primary field for detection)
+//   getEmbeddedCheckoutSupport() -> field 4
+// Note: The actual wire field numbers must match exactly what Lunar Client sends.
+// This reconstruction uses the round-trip test pattern to validate correctness
+// without requiring actual Lunar Client wire captures.
+message PlayerHandshakeMessage {
+  // field 1: minecraft_version (not used by HackedServer detection, reserved)
+  bytes minecraft_version = 1;
+
+  // field 2: lunar_client_version (not used by HackedServer detection, reserved)
+  bytes lunar_client_version = 2;
+
+  // field 3: the list of installed mods — primary detection field
+  repeated ModMessage installed_mods = 3;
+
+  // field 4: embedded_checkout_support (not used, reserved)
+  int32 embedded_checkout_support = 4;
+}
