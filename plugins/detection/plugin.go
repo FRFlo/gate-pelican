@@ -2,6 +2,7 @@ package detection
 
 import (
 	"context"
+	"encoding/hex"
 	"os"
 	"strings"
 
@@ -83,10 +84,10 @@ func initDetection(ctx context.Context, p *proxy.Proxy) error {
 	event.Subscribe(p.Event(), 0, onPluginMessageEvent(log, store, cfgHolder, executor))
 
 	// ServerPostConnectEvent — player has fully joined a server; execute pending actions.
-	event.Subscribe(p.Event(), 0, onServerPostConnectEvent(log, store, executor))
+	event.Subscribe(p.Event(), 0, onServerPostConnectEvent(log, store, cfgHolder, executor))
 
 	// DisconnectEvent — clean up store + history for the disconnecting player.
-	event.Subscribe(p.Event(), 0, onDisconnectEvent(log, store, history))
+	event.Subscribe(p.Event(), 0, onDisconnectEvent(log, store, history, cfgHolder))
 
 	log.Info("Detection plugin loaded.",
 		"generic_checks", len(cfg.Generic.Checks),
@@ -112,12 +113,20 @@ func onBrandEvent(
 		cfg := cfgHolder.get()
 		player := store.Get(gateUUIDToGoogle(e.Player().ID()))
 		bypass := e.Player().HasPermission("hackedserver.bypass")
+		if bypass {
+			log.Info("detection bypass active", "player", e.Player().Username(), "event", "brand")
+		}
+		logDebug(log, cfg.Main.Settings.Debug, "brand payload", "player", e.Player().Username(), "channel", brandChannel, "payload", e.Brand())
 
 		result := HandleBrandPayload(player, history, e.Brand(), *cfg, bypass)
+		if result.BedrockDetected {
+			log.Info("bedrock detection", "player", e.Player().Username(), "label", result.BedrockLabel, "action_count", len(result.BedrockActionIDs))
+		}
 
 		actCtx := ActionContext{PlayerName: e.Player().Username()}
 
 		for _, t := range result.GenericTriggers {
+			log.Info("generic detection", "player", e.Player().Username(), "check_id", t.CheckID, "name", t.Name, "action_count", len(t.ActionIDs))
 			if len(t.ActionIDs) == 0 {
 				continue
 			}
@@ -131,6 +140,7 @@ func onBrandEvent(
 		}
 
 		for _, t := range result.ForgeTriggers {
+			log.Info("forge detection", "player", e.Player().Username(), "name", t.Name, "action_count", len(t.ActionIDs))
 			if len(t.ActionIDs) == 0 {
 				continue
 			}
@@ -168,6 +178,9 @@ func onChannelRegisterEvent(
 		cfg := cfgHolder.get()
 		player := store.Get(gateUUIDToGoogle(e.Player().ID()))
 		bypass := e.Player().HasPermission("hackedserver.bypass")
+		if bypass {
+			log.Info("detection bypass active", "player", e.Player().Username(), "event", "channel_register")
+		}
 
 		// Convert Gate channel identifiers to plain strings for the handler.
 		rawChannels := make([]string, 0, len(e.Channels()))
@@ -175,12 +188,14 @@ func onChannelRegisterEvent(
 			rawChannels = append(rawChannels, ch.ID())
 		}
 		rawPayload := strings.Join(rawChannels, "\x00")
+		logDebug(log, cfg.Main.Settings.Debug, "register payload", "player", e.Player().Username(), "channel", registerChannel, "payload", rawPayload)
 
 		result := HandleChannelRegister(player, history, rawPayload, rawChannels, *cfg, bypass)
 
 		actCtx := ActionContext{PlayerName: e.Player().Username()}
 
 		for _, t := range result.GenericTriggers {
+			log.Info("generic detection", "player", e.Player().Username(), "check_id", t.CheckID, "name", t.Name, "action_count", len(t.ActionIDs))
 			if len(t.ActionIDs) == 0 {
 				continue
 			}
@@ -194,6 +209,7 @@ func onChannelRegisterEvent(
 		}
 
 		for _, t := range result.ForgeTriggers {
+			log.Info("forge detection", "player", e.Player().Username(), "name", t.Name, "action_count", len(t.ActionIDs))
 			if len(t.ActionIDs) == 0 {
 				continue
 			}
@@ -220,10 +236,32 @@ func onModInfoEvent(
 		cfg := cfgHolder.get()
 		player := store.Get(gateUUIDToGoogle(e.Player().ID()))
 		bypass := e.Player().HasPermission("hackedserver.bypass")
+		if bypass {
+			log.Info("detection bypass active", "player", e.Player().Username(), "event", "mod_info")
+		}
+
+		if len(e.ModInfo().Mods) > 0 {
+			mods := make([]string, 0, len(e.ModInfo().Mods))
+			for _, m := range e.ModInfo().Mods {
+				if m.ID == "" {
+					continue
+				}
+				mods = append(mods, strings.ToLower(m.ID))
+			}
+			if len(mods) > 0 {
+				log.Info("forge mods received", "player", e.Player().Username(), "client_type", e.ModInfo().Type, "count", len(mods))
+				if cfg.Main.Settings.Debug {
+					logDebug(log, true, "forge mods detail", "player", e.Player().Username(), "mods", strings.Join(mods, ","))
+				}
+			}
+		}
 
 		triggers := ProcessForgeModInfo(player, e.ModInfo(), cfg.Forge)
 		if len(triggers) == 0 {
 			return
+		}
+		for _, t := range triggers {
+			log.Info("forge trigger", "player", e.Player().Username(), "name", t.Name, "action_count", len(t.ActionIDs))
 		}
 
 		actCtx := ActionContext{PlayerName: e.Player().Username()}
@@ -263,8 +301,33 @@ func onPluginMessageEvent(
 		cfg := cfgHolder.get()
 		player := store.Get(gateUUIDToGoogle(gatePlayer.ID()))
 		bypass := gatePlayer.HasPermission("hackedserver.bypass")
+		if bypass {
+			log.Info("detection bypass active", "player", gatePlayer.Username(), "event", "plugin_message")
+		}
 
 		channelID := e.Identifier().ID()
+		if equalFold(channelID, lunarApolloChannel) {
+			log.Info("plugin message received", "player", gatePlayer.Username(), "channel", channelID, "size", len(e.Data()))
+		} else {
+			logDebug(log, cfg.Main.Settings.Debug, "plugin message ignored", "player", gatePlayer.Username(), "channel", channelID, "size", len(e.Data()))
+		}
+		if cfg.Main.Settings.Debug {
+			logDebug(log, true, "plugin message payload", "player", gatePlayer.Username(), "channel", channelID, "payload_hex", hex.EncodeToString(e.Data()))
+		}
+
+		if equalFold(channelID, lunarApolloChannel) {
+			if mods, ok := ParseLunarHandshake(e.Data()); ok {
+				modIDs := make([]string, 0, len(mods))
+				for _, mod := range mods {
+					if mod.ID == "" {
+						continue
+					}
+					modIDs = append(modIDs, strings.ToLower(mod.ID))
+				}
+				log.Info("lunar mods decoded", "player", gatePlayer.Username(), "count", len(modIDs), "mods", strings.Join(modIDs, ","))
+			}
+		}
+
 		result := HandleLunarPluginMessage(player, channelID, e.Data(), cfg.Lunar, bypass)
 
 		if !result.HasTriggers() {
@@ -274,6 +337,7 @@ func onPluginMessageEvent(
 		actCtx := ActionContext{PlayerName: gatePlayer.Username()}
 
 		for _, t := range result.Triggers {
+			log.Info("lunar detection", "player", gatePlayer.Username(), "name", t.Name, "action_count", len(t.ActionIDs))
 			if len(t.ActionIDs) == 0 {
 				continue
 			}
@@ -293,9 +357,11 @@ func onPluginMessageEvent(
 func onServerPostConnectEvent(
 	log logr.Logger,
 	store *PlayerStore,
+	cfgHolder *configHolder,
 	executor *ActionExecutor,
 ) func(*proxy.ServerPostConnectEvent) {
 	return func(e *proxy.ServerPostConnectEvent) {
+		cfg := cfgHolder.get()
 		// Only fire pending actions on the FIRST server connection (PreviousServer == nil).
 		if e.PreviousServer() != nil {
 			return
@@ -304,7 +370,7 @@ func onServerPostConnectEvent(
 		if !player.HasPendingActions() {
 			return
 		}
-		log.V(1).Info("executing pending detection actions",
+		logDebug(log, cfg.Main.Settings.Debug, "executing pending detection actions",
 			"player", e.Player().Username(),
 		)
 		player.ExecutePendingActions()
@@ -318,15 +384,27 @@ func onDisconnectEvent(
 	log logr.Logger,
 	store *PlayerStore,
 	history *MessageHistory,
+	cfgHolder *configHolder,
 ) func(*proxy.DisconnectEvent) {
 	return func(e *proxy.DisconnectEvent) {
+		cfg := cfgHolder.get()
 		id := gateUUIDToGoogle(e.Player().ID())
 		store.Remove(id)
 		history.Remove(id)
-		log.V(1).Info("detection: player cleaned up on disconnect",
+		logDebug(log, cfg.Main.Settings.Debug, "detection: player cleaned up on disconnect",
 			"player", e.Player().Username(),
 		)
 	}
+}
+
+func logDebug(log logr.Logger, enabled bool, msg string, keysAndValues ...any) {
+	if !enabled {
+		return
+	}
+	kv := make([]any, 0, len(keysAndValues)+2)
+	kv = append(kv, "verbosity", "debug")
+	kv = append(kv, keysAndValues...)
+	log.Info(msg, kv...)
 }
 
 // ─── Alert routing helper ─────────────────────────────────────────────────────
@@ -337,16 +415,16 @@ func onDisconnectEvent(
 func buildCallbacks(log logr.Logger, gatePlayer proxy.Player, cfgHolder *configHolder) ActionCallbacks {
 	return ActionCallbacks{
 		SendAlert: func(rendered string) {
-			log.Info("detection alert", "message", rendered)
+			log.Info("detection action alert", "player", gatePlayer.Username(), "message", rendered)
 		},
 		ExecuteConsoleCommand: func(rendered string) {
-			log.Info("detection: console command (stub)", "cmd", rendered)
+			log.Info("detection action console command", "player", gatePlayer.Username(), "cmd", rendered)
 		},
 		ExecutePlayerCommand: func(rendered string) {
-			log.Info("detection: player command (stub)", "cmd", rendered, "player", gatePlayer.Username())
+			log.Info("detection action player command", "player", gatePlayer.Username(), "cmd", rendered)
 		},
 		ExecuteOppedPlayerCommand: func(rendered string) {
-			log.Info("detection: opped player command (stub)", "cmd", rendered, "player", gatePlayer.Username())
+			log.Info("detection action opped player command", "player", gatePlayer.Username(), "cmd", rendered)
 		},
 	}
 }
