@@ -1,0 +1,20 @@
+=== RUN   TestPlayerStore
+=== RUN   TestPlayerStore/RegisterAndGet
+=== RUN   TestPlayerStore/GetCreatesIfAbsent
+=== RUN   TestPlayerStore/RegisterPreservesExisting
+=== RUN   TestPlayerStore/Remove
+=== RUN   TestPlayerStore/Cleanup
+=== RUN   TestPlayerStore/Players
+=== RUN   TestPlayerStore/Len
+=== RUN   TestPlayerStore/ConcurrentGetOrCreate
+--- PASS: TestPlayerStore (0.00s)
+    --- PASS: TestPlayerStore/RegisterAndGet (0.00s)
+    --- PASS: TestPlayerStore/GetCreatesIfAbsent (0.00s)
+    --- PASS: TestPlayerStore/RegisterPreservesExisting (0.00s)
+    --- PASS: TestPlayerStore/Remove (0.00s)
+    --- PASS: TestPlayerStore/Cleanup (0.00s)
+    --- PASS: TestPlayerStore/Players (0.00s)
+    --- PASS: TestPlayerStore/Len (0.00s)
+    --- PASS: TestPlayerStore/ConcurrentGetOrCreate (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	1.613s

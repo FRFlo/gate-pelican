@@ -1,0 +1,39 @@
+Task 14 - Full Init Wiring: TestInitWiring
+==========================================
+Date: 2026-03-11
+
+VERIFICATION
+------------
+Command: go test -v -run TestInitWiring ./plugins/detection/
+Result:  PASS
+
+Output:
+  === RUN   TestInitWiring
+      plugin_test.go:173: action "alert": cbCalled=false (ok — action may be no-op)
+      plugin_test.go:183: TestInitWiring: OK — config has 31 generic checks, 1 actions
+  --- PASS: TestInitWiring (0.00s)
+
+WHAT IS TESTED
+--------------
+1. TOML config loaded from real HackedServer submodule (31 generic checks, 1 action)
+2. NewPlayerStore() and NewMessageHistory() produce non-nil, empty collaborators
+3. NewActionExecutor() from loaded config is non-nil
+4. HandleChannelRegister fires a generic trigger using a "minecraft:register" check
+   from the real config (forge_mod_loader_v1 with message_has="legacy:fml")
+5. Player.HasGenericCheck() records the check after HandleChannelRegister fires
+6. HandleChannelRegister with bypass=true produces nil ActionIDs
+7. HandleBrandPayload("vanilla") runs without panic (Bedrock/Forge brand paths)
+8. HandleLunarPluginMessage("minecraft:brand", ...) returns no triggers (wrong channel)
+9. ActionExecutor.Execute() for first action in config does not panic
+10. store.Remove() after two players clears Len() to 0
+
+FIX APPLIED
+-----------
+plugin_test.go was originally package detection_test (external) and referenced
+non-existent exports detection.ResourcesDirFromBaseDir and detection.RepoRootForTest.
+Fixed by:
+  - Changing to package detection (internal test package)
+  - Removing all detection. prefixes
+  - Removing duplicate repoRoot() function (already in config_toml_paths_test.go)
+  - Fixing channel-matching logic: searches for checks with "minecraft:register"
+    channel (the only ones HandleChannelRegister can trigger via GenericMatch)

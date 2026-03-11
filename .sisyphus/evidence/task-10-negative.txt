@@ -1,0 +1,34 @@
+=== RUN   TestLunarNoBlacklist
+=== RUN   TestLunarNoBlacklist/UnknownModNoModActionTrigger
+=== RUN   TestLunarNoBlacklist/DisabledProcessorNoTriggers
+=== RUN   TestLunarNoBlacklist/NilPlayerNoTriggers
+=== RUN   TestLunarNoBlacklist/NilModsNoTriggers
+=== RUN   TestLunarNoBlacklist/IdempotentLunarClientMark
+=== RUN   TestLunarNoBlacklist/IdempotentFabricMark
+=== RUN   TestLunarNoBlacklist/IdempotentForgeMark
+=== RUN   TestLunarNoBlacklist/IdempotentModAction
+=== RUN   TestLunarNoBlacklist/MarkDisabledNoClientTrigger
+=== RUN   TestLunarNoBlacklist/MarkFabricDisabledNoFabricTrigger
+=== RUN   TestLunarNoBlacklist/MarkForgeDisabledNoForgeTrigger
+=== RUN   TestLunarNoBlacklist/NoActionsConfiguredNoTrigger
+=== RUN   TestLunarNoBlacklist/FabricMarkRequiresFabricMod
+=== RUN   TestLunarNoBlacklist/ForgeMarkRequiresForgeMod
+--- PASS: TestLunarNoBlacklist (0.00s)
+    --- PASS: TestLunarNoBlacklist/UnknownModNoModActionTrigger (0.00s)
+    --- PASS: TestLunarNoBlacklist/DisabledProcessorNoTriggers (0.00s)
+    --- PASS: TestLunarNoBlacklist/NilPlayerNoTriggers (0.00s)
+    --- PASS: TestLunarNoBlacklist/NilModsNoTriggers (0.00s)
+    --- PASS: TestLunarNoBlacklist/IdempotentLunarClientMark (0.00s)
+    --- PASS: TestLunarNoBlacklist/IdempotentFabricMark (0.00s)
+    --- PASS: TestLunarNoBlacklist/IdempotentForgeMark (0.00s)
+    --- PASS: TestLunarNoBlacklist/IdempotentModAction (0.00s)
+    --- PASS: TestLunarNoBlacklist/MarkDisabledNoClientTrigger (0.00s)
+    --- PASS: TestLunarNoBlacklist/MarkFabricDisabledNoFabricTrigger (0.00s)
+    --- PASS: TestLunarNoBlacklist/MarkForgeDisabledNoForgeTrigger (0.00s)
+    --- PASS: TestLunarNoBlacklist/NoActionsConfiguredNoTrigger (0.00s)
+    --- PASS: TestLunarNoBlacklist/FabricMarkRequiresFabricMod (0.00s)
+    --- PASS: TestLunarNoBlacklist/ForgeMarkRequiresForgeMod (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	1.029s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]

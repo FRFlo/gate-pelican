@@ -1,0 +1,18 @@
+Task: 1 - Plugin Skeleton + Registration
+Command: go test ./plugins/detection/... -run TestPlugin -v
+Date: 2026-03-11
+Workdir: C:\Users\fdelelis\Desktop\gate-plugged
+
+--- OUTPUT ---
+=== RUN   TestPlugin
+=== RUN   TestPlugin/name
+=== RUN   TestPlugin/init_not_nil
+=== RUN   TestPlugin/init_returns_nil
+--- PASS: TestPlugin (0.00s)
+    --- PASS: TestPlugin/name (0.00s)
+    --- PASS: TestPlugin/init_not_nil (0.00s)
+    --- PASS: TestPlugin/init_returns_nil (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	1.610s
+
+EXIT_CODE=0

@@ -1,0 +1,35 @@
+Task 14 - Full Init Wiring: TestDisconnectCleanup
+=================================================
+Date: 2026-03-11
+
+VERIFICATION
+------------
+Command: go test -v -run TestDisconnectCleanup ./plugins/detection/
+Result:  PASS
+
+Output:
+  === RUN   TestDisconnectCleanup
+      plugin_test.go:273: TestDisconnectCleanup: OK
+  --- PASS: TestDisconnectCleanup (0.00s)
+
+WHAT IS TESTED
+--------------
+1. store.Register() followed by store.Get() returns non-nil player
+2. dp.AddGenericCheck() + dp.HasGenericCheck() round-trips correctly
+3. history.IsDuplicate() first call returns false (not seen before)
+4. history.IsDuplicate() second call returns true (already seen)
+5. dp.QueuePendingAction() + dp.HasPendingActions() round-trips correctly
+6. store.Len() == 1 before disconnect simulation
+7. store.Remove(id) + history.Remove(id) → mirrors onDisconnectEvent in plugin.go
+8. store.Len() == 0 after Remove
+9. store.Get(id) after Remove returns a NEW, DIFFERENT player pointer (create-if-absent)
+10. New player does NOT have old generic check or pending actions (state cleared)
+11. history.IsDuplicate() after Remove returns false (history wiped)
+12. Pending action function NOT called by Remove (disconnect must NOT execute actions)
+
+ARCHITECTURE VERIFIED
+---------------------
+onDisconnectEvent in plugin.go:
+  store.Remove(id)   ← removes player from PlayerStore
+  history.Remove(id) ← removes message history for player
+Both operations confirmed correct by this test.

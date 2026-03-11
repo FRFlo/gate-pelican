@@ -1,0 +1,18 @@
+=== RUN   TestBedrockBrandPositive
+=== RUN   TestBedrockBrandPositive/exact_lowercase
+=== RUN   TestBedrockBrandPositive/exact_uppercase
+=== RUN   TestBedrockBrandPositive/mixed_case
+=== RUN   TestBedrockBrandPositive/prefix_version
+=== RUN   TestBedrockBrandPositive/prefix_bedrock
+=== RUN   TestBedrockBrandPositive/suffix_geyser
+=== RUN   TestBedrockBrandPositive/contains_geyser
+--- PASS: TestBedrockBrandPositive (0.00s)
+    --- PASS: TestBedrockBrandPositive/exact_lowercase (0.00s)
+    --- PASS: TestBedrockBrandPositive/exact_uppercase (0.00s)
+    --- PASS: TestBedrockBrandPositive/mixed_case (0.00s)
+    --- PASS: TestBedrockBrandPositive/prefix_version (0.00s)
+    --- PASS: TestBedrockBrandPositive/prefix_bedrock (0.00s)
+    --- PASS: TestBedrockBrandPositive/suffix_geyser (0.00s)
+    --- PASS: TestBedrockBrandPositive/contains_geyser (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	3.968s

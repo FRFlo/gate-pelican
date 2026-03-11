@@ -60,10 +60,10 @@ Build a Go-native Gate plugin that reproduces HackedServer detection behavior wi
 - `gate.go` plugin registration update
 
 ### Definition of Done
-- [ ] `go build ./...` passes
-- [ ] `go test ./plugins/detection/...` passes
-- [ ] `go vet ./plugins/detection/...` passes
-- [ ] All required detections/actions/commands implemented
+- [x] `go build ./...` passes
+- [x] `go test ./plugins/detection/...` passes
+- [x] `go vet ./plugins/detection/...` passes
+- [x] All required detections/actions/commands implemented
 
 ### Must Have
 - Full generic signature support (30+).
@@ -156,7 +156,7 @@ Wave FINAL:
 
 ## TODOs
 
-- [ ] 1. Plugin Skeleton + Registration
+- [x] 1. Plugin Skeleton + Registration
   **What to do**: Add `detection.Plugin` and register in `gate.go`.
   **References**: `plugins/pelican/pelican.go`, `gate.go`.
   **QA Scenarios**:
@@ -174,7 +174,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-1-test.txt
   ```
 
-- [ ] 2. Config Structs + TOML Mapping
+- [x] 2. Config Structs + TOML Mapping
   **What to do**: Build config structs matching all six source TOMLs and loader entrypoints.
   **References**: all `HackedServer/.../resources/*.toml`.
   **QA Scenarios**:
@@ -192,7 +192,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-2-missing.txt
   ```
 
-- [ ] 3. Player State Model
+- [x] 3. Player State Model
   **What to do**: Implement thread-safe `DetectedPlayer` + store.
   **References**: `HackedPlayer.java`, `HackedServer.java`.
   **QA Scenarios**:
@@ -210,7 +210,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-3-store.txt
   ```
 
-- [ ] 4. Submodule TOML Path Resolver
+- [x] 4. Submodule TOML Path Resolver
   **What to do**: Resolve and validate all submodule TOML paths.
   **References**: `.gitmodules`, `HackedServer/.../resources`.
   **QA Scenarios**:
@@ -228,7 +228,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-4-missing.txt
   ```
 
-- [ ] 5. Generic Matcher Core
+- [x] 5. Generic Matcher Core
   **What to do**: Port Java `GenericCheck.pass()` logic with dedupe semantics.
   **References**: `GenericCheck.java`, `generic.toml`.
   **QA Scenarios**:
@@ -246,7 +246,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-5-dedupe.txt
   ```
 
-- [ ] 6. Brand + Channel Handlers
+- [x] 6. Brand + Channel Handlers
   **What to do**: Hook `PlayerClientBrandEvent` and `PlayerChannelRegisterEvent` to matcher + state.
   **References**: `CustomPayloadListener.java`, Gate event APIs.
   **QA Scenarios**:
@@ -264,7 +264,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-6-bypass.txt
   ```
 
-- [ ] 7. Forge/NeoForge Detection
+- [x] 7. Forge/NeoForge Detection
   **What to do**: Use `PlayerModInfoEvent` primary + REGISTER parser fallback; apply list policies.
   **References**: `ForgeChannelParser.java`, `ForgeHandshakeProcessor.java`, `forge.toml`.
   **QA Scenarios**:
@@ -282,7 +282,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-7-fallback.txt
   ```
 
-- [ ] 8. Lunar Protobuf Decoder
+- [x] 8. Lunar Protobuf Decoder
   **What to do**:
   - Pin proto dependency to `com.lunarclient:apollo-protos:0.0.5` (from `HackedServer/build.gradle.kts:95`).
   - Use configured repo source `https://repo.lunarclient.dev` (from `HackedServer/build.gradle.kts:35-37`).
@@ -319,7 +319,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-8-offline-codegen.txt
   ```
 
-- [ ] 9. Bedrock Brand Fallback
+- [x] 9. Bedrock Brand Fallback
   **What to do**: Detect Bedrock via brand string rules only.
   **References**: `BedrockDetector.java`, `bedrock.toml`.
   **QA Scenarios**:
@@ -337,7 +337,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-9-negative.txt
   ```
 
-- [ ] 10. Lunar Intelligence Processor
+- [x] 10. Lunar Intelligence Processor
   **What to do**: Map decoded lunar mods/marks to detections and queued actions.
   **References**: `LunarHandshakeProcessor.java`, `lunar.toml`.
   **QA Scenarios**:
@@ -355,7 +355,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-10-negative.txt
   ```
 
-- [ ] 11. Actions System
+- [x] 11. Actions System
   **What to do**: Alerts/commands/delay execution pipeline with placeholders.
   **References**: `Action.java`, `actions.toml`.
   **QA Scenarios**:
@@ -373,7 +373,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-11-delay.txt
   ```
 
-- [ ] 12. PluginMessage Routing
+- [x] 12. PluginMessage Routing
   **What to do**: Register `lunar:apollo` and route plugin messages to lunar decode path.
   **References**: Gate plugin message API, `CustomPayloadListener.java`.
   **QA Scenarios**:
@@ -391,7 +391,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-12-ignore.txt
   ```
 
-- [ ] 13. Commands (reload/check/list)
+- [x] 13. Commands (reload/check/list)
   **What to do**: Brigodier command tree with output formatting.
   **References**: `go.minekube.com/brigodier`.
   **QA Scenarios**:
@@ -409,7 +409,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-13-checklist.txt
   ```
 
-- [ ] 14. Full Init Wiring + Lifecycle
+- [x] 14. Full Init Wiring + Lifecycle
   **What to do**: Wire all handlers, subscriptions, and disconnect cleanup.
   **References**: `plugins/pelican/pelican.go`.
   **QA Scenarios**:
@@ -427,7 +427,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-14-cleanup.txt
   ```
 
-- [ ] 15. Startup Guard for Submodule TOMLs
+- [x] 15. Startup Guard for Submodule TOMLs
   **What to do**: Fail startup with remediation text when submodule TOMLs are unavailable.
   **References**: `.gitmodules`, submodule resource paths.
   **QA Scenarios**:
@@ -445,7 +445,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-15-missing.txt
   ```
 
-- [ ] 16. Integration Test Wave
+- [x] 16. Integration Test Wave
   **What to do**: Add integration tests spanning detections -> actions -> command-visible state.
   **References**: all TOML source files as fixtures.
   **QA Scenarios**:
@@ -463,7 +463,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-16-errors.txt
   ```
 
-- [ ] 17. Build/Vet Finalization
+- [x] 17. Build/Vet Finalization
   **What to do**: Final clean pass on build/test/vet/race.
   **QA Scenarios**:
   ```
@@ -487,7 +487,7 @@ Wave FINAL:
 
 ## Final Verification Wave
 
-- [ ] F1. Plan Compliance Audit (`oracle`)
+- [x] F1. Plan Compliance Audit (`oracle`)
   **QA Scenario:**
   ```
   Scenario: F1 must-have/must-not-have audit
@@ -506,7 +506,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-f1-plan-compliance.txt
   ```
 
-- [ ] F2. Code Quality Review (`unspecified-high`)
+- [x] F2. Code Quality Review (`unspecified-high`)
   **QA Scenario:**
   ```
   Scenario: F2 build/test/vet quality gate
@@ -519,7 +519,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-f2-quality.txt
   ```
 
-- [ ] F3. QA Evidence Sweep (`unspecified-high`)
+- [x] F3. QA Evidence Sweep (`unspecified-high`)
   **QA Scenario:**
   ```
   Scenario: F3 evidence completeness check
@@ -564,7 +564,7 @@ Wave FINAL:
     Evidence: .sisyphus/evidence/task-f3-evidence-sweep.txt
   ```
 
-- [ ] F4. Scope Fidelity Check (`deep`)
+- [x] F4. Scope Fidelity Check (`deep`)
   **QA Scenario:**
   ```
   Scenario: F4 planned-vs-implemented scope diff
@@ -606,7 +606,7 @@ go test ./plugins/detection/... -race
 ```
 
 ### Final Checklist
-- [ ] Must Have items implemented
-- [ ] Must NOT Have items absent
-- [ ] QA evidence files present for all tasks
-- [ ] Final verification wave approved (F1-F4)
+- [x] Must Have items implemented
+- [x] Must NOT Have items absent
+- [x] QA evidence files present for all tasks
+- [x] Final verification wave approved (F1-F4)

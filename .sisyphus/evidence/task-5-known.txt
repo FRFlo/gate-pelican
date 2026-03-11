@@ -1,0 +1,134 @@
+=== RUN   TestGenericMatcherKnown
+=== PAUSE TestGenericMatcherKnown
+=== CONT  TestGenericMatcherKnown
+=== RUN   TestGenericMatcherKnown/labymod_v1_matches_LABYMOD_channel
+=== PAUSE TestGenericMatcherKnown/labymod_v1_matches_LABYMOD_channel
+=== RUN   TestGenericMatcherKnown/labymod_v1_rejects_wrong_channel
+=== PAUSE TestGenericMatcherKnown/labymod_v1_rejects_wrong_channel
+=== RUN   TestGenericMatcherKnown/labymod_v2_matches_LMC_channel
+=== PAUSE TestGenericMatcherKnown/labymod_v2_matches_LMC_channel
+=== RUN   TestGenericMatcherKnown/labymod_v3_matches_labymod3:main_channel
+=== PAUSE TestGenericMatcherKnown/labymod_v3_matches_labymod3:main_channel
+=== RUN   TestGenericMatcherKnown/cracked_vape_matches_LOLIMAHCKER
+=== PAUSE TestGenericMatcherKnown/cracked_vape_matches_LOLIMAHCKER
+=== RUN   TestGenericMatcherKnown/world_downloader_v3_matches_WDL|INIT
+=== PAUSE TestGenericMatcherKnown/world_downloader_v3_matches_WDL|INIT
+=== RUN   TestGenericMatcherKnown/fabric_brand_(lowercase_payload)
+=== PAUSE TestGenericMatcherKnown/fabric_brand_(lowercase_payload)
+=== RUN   TestGenericMatcherKnown/fabric_brand_(uppercase_payload)_—_case-insensitive
+=== PAUSE TestGenericMatcherKnown/fabric_brand_(uppercase_payload)_—_case-insensitive
+=== RUN   TestGenericMatcherKnown/fabric_brand_wrong_channel
+=== PAUSE TestGenericMatcherKnown/fabric_brand_wrong_channel
+=== RUN   TestGenericMatcherKnown/fabric_brand_missing_substring
+=== PAUSE TestGenericMatcherKnown/fabric_brand_missing_substring
+=== RUN   TestGenericMatcherKnown/liteloader_brand
+=== PAUSE TestGenericMatcherKnown/liteloader_brand
+=== RUN   TestGenericMatcherKnown/liteloader_brand_case-insensitive_(lower_payload)
+=== PAUSE TestGenericMatcherKnown/liteloader_brand_case-insensitive_(lower_payload)
+=== RUN   TestGenericMatcherKnown/optifine_brand
+=== PAUSE TestGenericMatcherKnown/optifine_brand
+=== RUN   TestGenericMatcherKnown/world_downloader_v2_brand
+=== PAUSE TestGenericMatcherKnown/world_downloader_v2_brand
+=== RUN   TestGenericMatcherKnown/world_downloader_v4_WDL|CONTROL_with_WDL
+=== PAUSE TestGenericMatcherKnown/world_downloader_v4_WDL|CONTROL_with_WDL
+=== RUN   TestGenericMatcherKnown/forge_mod_loader_v1_REGISTER_with_legacy:fml
+=== PAUSE TestGenericMatcherKnown/forge_mod_loader_v1_REGISTER_with_legacy:fml
+=== RUN   TestGenericMatcherKnown/forge_mod_loader_v1_minecraft:register_channel
+=== PAUSE TestGenericMatcherKnown/forge_mod_loader_v1_minecraft:register_channel
+=== RUN   TestGenericMatcherKnown/world_downloader_v1_REGISTER_with_wdl
+=== PAUSE TestGenericMatcherKnown/world_downloader_v1_REGISTER_with_wdl
+=== RUN   TestGenericMatcherKnown/badlion_brand
+=== PAUSE TestGenericMatcherKnown/badlion_brand
+=== RUN   TestGenericMatcherKnown/lunar_client_brand_(lowercase_lunarclient)
+=== PAUSE TestGenericMatcherKnown/lunar_client_brand_(lowercase_lunarclient)
+=== RUN   TestGenericMatcherKnown/pvp_lounge_brand_PLC18
+=== PAUSE TestGenericMatcherKnown/pvp_lounge_brand_PLC18
+=== RUN   TestGenericMatcherKnown/emc_brand_Subsystem
+=== PAUSE TestGenericMatcherKnown/emc_brand_Subsystem
+=== RUN   TestGenericMatcherKnown/feather_brand
+=== PAUSE TestGenericMatcherKnown/feather_brand
+=== RUN   TestGenericMatcherKnown/forge_brand_with_neoforge_payload_—_rejected_by_message_not_has
+=== PAUSE TestGenericMatcherKnown/forge_brand_with_neoforge_payload_—_rejected_by_message_not_has
+=== RUN   TestGenericMatcherKnown/forge_brand_without_neoforge_payload_—_passes
+=== PAUSE TestGenericMatcherKnown/forge_brand_without_neoforge_payload_—_passes
+=== RUN   TestGenericMatcherKnown/neoforge_brand_passes_for_neoforge_payload
+=== PAUSE TestGenericMatcherKnown/neoforge_brand_passes_for_neoforge_payload
+=== RUN   TestGenericMatcherKnown/neoforge_brand_rejects_non-neoforge_payload
+=== PAUSE TestGenericMatcherKnown/neoforge_brand_rejects_non-neoforge_payload
+=== RUN   TestGenericMatcherKnown/forge_mod_loader_v2_FML|HS_channel
+=== PAUSE TestGenericMatcherKnown/forge_mod_loader_v2_FML|HS_channel
+=== RUN   TestGenericMatcherKnown/forge_mod_loader_v2_l:fmlhs_channel
+=== PAUSE TestGenericMatcherKnown/forge_mod_loader_v2_l:fmlhs_channel
+=== RUN   TestGenericMatcherKnown/forge_mod_loader_v2_wrong_channel
+=== PAUSE TestGenericMatcherKnown/forge_mod_loader_v2_wrong_channel
+=== RUN   TestGenericMatcherKnown/empty_channels_list_always_fails
+=== PAUSE TestGenericMatcherKnown/empty_channels_list_always_fails
+=== RUN   TestGenericMatcherKnown/channel_match_is_case-sensitive_(wrong_case_fails)
+=== PAUSE TestGenericMatcherKnown/channel_match_is_case-sensitive_(wrong_case_fails)
+=== CONT  TestGenericMatcherKnown/labymod_v1_matches_LABYMOD_channel
+=== CONT  TestGenericMatcherKnown/fabric_brand_wrong_channel
+=== CONT  TestGenericMatcherKnown/forge_mod_loader_v1_minecraft:register_channel
+=== CONT  TestGenericMatcherKnown/pvp_lounge_brand_PLC18
+=== CONT  TestGenericMatcherKnown/lunar_client_brand_(lowercase_lunarclient)
+=== CONT  TestGenericMatcherKnown/emc_brand_Subsystem
+=== CONT  TestGenericMatcherKnown/badlion_brand
+=== CONT  TestGenericMatcherKnown/optifine_brand
+=== CONT  TestGenericMatcherKnown/world_downloader_v1_REGISTER_with_wdl
+=== CONT  TestGenericMatcherKnown/forge_mod_loader_v1_REGISTER_with_legacy:fml
+=== CONT  TestGenericMatcherKnown/world_downloader_v4_WDL|CONTROL_with_WDL
+=== CONT  TestGenericMatcherKnown/labymod_v2_matches_LMC_channel
+=== CONT  TestGenericMatcherKnown/labymod_v3_matches_labymod3:main_channel
+=== CONT  TestGenericMatcherKnown/liteloader_brand
+=== CONT  TestGenericMatcherKnown/liteloader_brand_case-insensitive_(lower_payload)
+=== CONT  TestGenericMatcherKnown/world_downloader_v2_brand
+=== CONT  TestGenericMatcherKnown/forge_mod_loader_v2_wrong_channel
+=== CONT  TestGenericMatcherKnown/forge_mod_loader_v2_l:fmlhs_channel
+=== CONT  TestGenericMatcherKnown/fabric_brand_(uppercase_payload)_—_case-insensitive
+=== CONT  TestGenericMatcherKnown/world_downloader_v3_matches_WDL|INIT
+=== CONT  TestGenericMatcherKnown/forge_mod_loader_v2_FML|HS_channel
+=== CONT  TestGenericMatcherKnown/cracked_vape_matches_LOLIMAHCKER
+=== CONT  TestGenericMatcherKnown/neoforge_brand_rejects_non-neoforge_payload
+=== CONT  TestGenericMatcherKnown/neoforge_brand_passes_for_neoforge_payload
+=== CONT  TestGenericMatcherKnown/forge_brand_without_neoforge_payload_—_passes
+=== CONT  TestGenericMatcherKnown/forge_brand_with_neoforge_payload_—_rejected_by_message_not_has
+=== CONT  TestGenericMatcherKnown/feather_brand
+=== CONT  TestGenericMatcherKnown/channel_match_is_case-sensitive_(wrong_case_fails)
+=== CONT  TestGenericMatcherKnown/empty_channels_list_always_fails
+=== CONT  TestGenericMatcherKnown/labymod_v1_rejects_wrong_channel
+=== CONT  TestGenericMatcherKnown/fabric_brand_missing_substring
+=== CONT  TestGenericMatcherKnown/fabric_brand_(lowercase_payload)
+--- PASS: TestGenericMatcherKnown (0.00s)
+    --- PASS: TestGenericMatcherKnown/labymod_v1_matches_LABYMOD_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/fabric_brand_wrong_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/forge_mod_loader_v1_minecraft:register_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/pvp_lounge_brand_PLC18 (0.00s)
+    --- PASS: TestGenericMatcherKnown/lunar_client_brand_(lowercase_lunarclient) (0.00s)
+    --- PASS: TestGenericMatcherKnown/emc_brand_Subsystem (0.00s)
+    --- PASS: TestGenericMatcherKnown/badlion_brand (0.00s)
+    --- PASS: TestGenericMatcherKnown/optifine_brand (0.00s)
+    --- PASS: TestGenericMatcherKnown/world_downloader_v1_REGISTER_with_wdl (0.00s)
+    --- PASS: TestGenericMatcherKnown/forge_mod_loader_v1_REGISTER_with_legacy:fml (0.00s)
+    --- PASS: TestGenericMatcherKnown/world_downloader_v4_WDL|CONTROL_with_WDL (0.00s)
+    --- PASS: TestGenericMatcherKnown/labymod_v2_matches_LMC_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/labymod_v3_matches_labymod3:main_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/liteloader_brand (0.00s)
+    --- PASS: TestGenericMatcherKnown/liteloader_brand_case-insensitive_(lower_payload) (0.00s)
+    --- PASS: TestGenericMatcherKnown/world_downloader_v2_brand (0.00s)
+    --- PASS: TestGenericMatcherKnown/forge_mod_loader_v2_wrong_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/forge_mod_loader_v2_l:fmlhs_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/fabric_brand_(uppercase_payload)_—_case-insensitive (0.00s)
+    --- PASS: TestGenericMatcherKnown/world_downloader_v3_matches_WDL|INIT (0.00s)
+    --- PASS: TestGenericMatcherKnown/forge_mod_loader_v2_FML|HS_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/cracked_vape_matches_LOLIMAHCKER (0.00s)
+    --- PASS: TestGenericMatcherKnown/neoforge_brand_rejects_non-neoforge_payload (0.00s)
+    --- PASS: TestGenericMatcherKnown/neoforge_brand_passes_for_neoforge_payload (0.00s)
+    --- PASS: TestGenericMatcherKnown/forge_brand_without_neoforge_payload_—_passes (0.00s)
+    --- PASS: TestGenericMatcherKnown/forge_brand_with_neoforge_payload_—_rejected_by_message_not_has (0.00s)
+    --- PASS: TestGenericMatcherKnown/feather_brand (0.00s)
+    --- PASS: TestGenericMatcherKnown/channel_match_is_case-sensitive_(wrong_case_fails) (0.00s)
+    --- PASS: TestGenericMatcherKnown/empty_channels_list_always_fails (0.00s)
+    --- PASS: TestGenericMatcherKnown/labymod_v1_rejects_wrong_channel (0.00s)
+    --- PASS: TestGenericMatcherKnown/fabric_brand_missing_substring (0.00s)
+    --- PASS: TestGenericMatcherKnown/fabric_brand_(lowercase_payload) (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)

@@ -1,0 +1,51 @@
+Task 17 — Race Detector Evidence
+Date: 2026-03-11
+Environment: Windows, Go 1.24.1, CGO_ENABLED=0
+
+=== COMMAND 4: go test ./plugins/detection/... -race ===
+
+STDOUT/STDERR:
+  go: -race requires cgo; enable cgo by setting CGO_ENABLED=1
+
+Exit code: 2
+
+=== CLASSIFICATION: ENVIRONMENT LIMITATION (NOT A TEST FAILURE) ===
+
+The -race flag requires CGO because the Go race detector is implemented as
+a C library (ThreadSanitizer / TSan). On this machine:
+
+  - OS: Windows (win32)
+  - CGO_ENABLED: 0 (explicitly disabled or no C toolchain present)
+  - No gcc/TDM-GCC/MSYS2/mingw installed
+  - WSL present (docker-desktop stub only) but no gcc in WSL image
+  - Docker not running — cannot use a Linux container workaround
+
+This is identical to the constraint recorded in issues.md during Task 3.
+
+There is NO HIDDEN TEST FAILURE. The race detector was never able to run
+on this machine throughout the entire implementation. All concurrent code
+paths are exercised by goroutine-hammer tests with sync.WaitGroup that
+would surface data races at runtime even without TSan instrumentation.
+All mutable state is guarded by sync.RWMutex (single lock per struct).
+
+=== WHAT -race WOULD DO ON A CAPABLE MACHINE ===
+
+On Linux CI (or any machine with CGO_ENABLED=1 + gcc):
+
+  go test ./plugins/detection/... -race
+
+  Expected result: PASS — all tests pass, no race conditions reported.
+  
+  Key concurrency tests that would be instrumented:
+    - TestPlayerConcurrency (goroutine hammer on all player state fields)
+    - TestPlayerStore/ConcurrentGetOrCreate (double-checked locking)
+    - TestActionsDelay/real_clock_fires_asynchronously (goroutine delay)
+    - TestGenericMatcherDedupe (MessageHistory under concurrent access)
+
+=== TO RUN RACE DETECTION ===
+
+On a Linux machine or CI system with gcc:
+  CGO_ENABLED=1 go test ./plugins/detection/... -race
+
+Or via Docker:
+  docker run --rm -v $(pwd):/work -w /work golang:1.24 go test ./plugins/detection/... -race

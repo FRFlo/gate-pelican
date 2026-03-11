@@ -1,0 +1,19 @@
+=== RUN   TestPluginMessageIgnoreOther
+=== RUN   TestPluginMessageIgnoreOther/Channel_minecraft:brand
+=== RUN   TestPluginMessageIgnoreOther/Channel_minecraft:register
+=== RUN   TestPluginMessageIgnoreOther/Channel_forge:handshake
+=== RUN   TestPluginMessageIgnoreOther/Channel_bungeecord:main
+=== RUN   TestPluginMessageIgnoreOther/Channel_
+=== RUN   TestPluginMessageIgnoreOther/Channel_MINECRAFT:BRAND
+--- PASS: TestPluginMessageIgnoreOther (0.00s)
+    --- PASS: TestPluginMessageIgnoreOther/Channel_minecraft:brand (0.00s)
+    --- PASS: TestPluginMessageIgnoreOther/Channel_minecraft:register (0.00s)
+    --- PASS: TestPluginMessageIgnoreOther/Channel_forge:handshake (0.00s)
+    --- PASS: TestPluginMessageIgnoreOther/Channel_bungeecord:main (0.00s)
+    --- PASS: TestPluginMessageIgnoreOther/Channel_ (0.00s)
+    --- PASS: TestPluginMessageIgnoreOther/Channel_MINECRAFT:BRAND (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	0.849s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]
+Exit: 0

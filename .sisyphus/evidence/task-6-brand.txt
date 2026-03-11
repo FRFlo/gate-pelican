@@ -1,0 +1,28 @@
+Task 6 — Brand Handler Evidence
+Generated: 2026-03-11
+Command: go test ./plugins/detection/... -run TestBrandHandler -v
+
+=== RUN   TestBrandHandler
+=== RUN   TestBrandHandler/generic_check_fires_on_matching_brand_channel
+=== RUN   TestBrandHandler/generic_check_does_not_fire_for_wrong_channel
+=== RUN   TestBrandHandler/generic_disabled_means_no_triggers
+=== RUN   TestBrandHandler/bedrock_brand_triggers_detection
+=== RUN   TestBrandHandler/bedrock_brand_not_triggered_for_vanilla
+=== RUN   TestBrandHandler/forge_brand_detected_and_forge_type_set
+=== RUN   TestBrandHandler/neoforge_brand_detected_correctly
+=== RUN   TestBrandHandler/forge_brand_not_retriggered_when_type_already_set
+=== RUN   TestBrandHandler/vanilla_brand_no_detections
+--- PASS: TestBrandHandler (0.00s)
+    --- PASS: TestBrandHandler/generic_check_fires_on_matching_brand_channel (0.00s)
+    --- PASS: TestBrandHandler/generic_check_does_not_fire_for_wrong_channel (0.00s)
+    --- PASS: TestBrandHandler/generic_disabled_means_no_triggers (0.00s)
+    --- PASS: TestBrandHandler/bedrock_brand_triggers_detection (0.00s)
+    --- PASS: TestBrandHandler/bedrock_brand_not_triggered_for_vanilla (0.00s)
+    --- PASS: TestBrandHandler/forge_brand_detected_and_forge_type_set (0.00s)
+    --- PASS: TestBrandHandler/neoforge_brand_detected_correctly (0.00s)
+    --- PASS: TestBrandHandler/forge_brand_not_retriggered_when_type_already_set (0.00s)
+    --- PASS: TestBrandHandler/vanilla_brand_no_detections (0.00s)
+PASS
+ok      github.com/minekube/gate-plugin-template/plugins/detection      2.422s
+
+Full suite: go test ./plugins/detection/... → PASS, exit 0, no regressions.

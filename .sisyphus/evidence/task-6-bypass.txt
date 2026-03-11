@@ -1,0 +1,27 @@
+Task 6 — Bypass Skip Evidence
+Generated: 2026-03-11
+Command: go test ./plugins/detection/... -run TestBypassSkip -v
+
+=== RUN   TestBypassSkip
+=== RUN   TestBypassSkip/bypass_clears_generic_action_ids_but_records_check
+=== RUN   TestBypassSkip/bypass_clears_bedrock_action_ids_but_mutates_state
+=== RUN   TestBypassSkip/bypass_clears_forge_brand_action_ids_but_sets_type
+=== RUN   TestBypassSkip/bypass_clears_channel_register_forge_action_ids_but_records_mods
+=== RUN   TestBypassSkip/bypass_false_preserves_action_ids
+=== RUN   TestBypassSkip/bypass_channel_generic_clears_action_ids_but_records_check
+--- PASS: TestBypassSkip (0.00s)
+    --- PASS: TestBypassSkip/bypass_clears_generic_action_ids_but_records_check (0.00s)
+    --- PASS: TestBypassSkip/bypass_clears_bedrock_action_ids_but_mutates_state (0.00s)
+    --- PASS: TestBypassSkip/bypass_clears_forge_brand_action_ids_but_sets_type (0.00s)
+    --- PASS: TestBypassSkip/bypass_clears_channel_register_forge_action_ids_but_records_mods (0.00s)
+    --- PASS: TestBypassSkip/bypass_false_preserves_action_ids (0.00s)
+    --- PASS: TestBypassSkip/bypass_channel_generic_clears_action_ids_but_records_check (0.00s)
+PASS
+ok      github.com/minekube/gate-plugin-template/plugins/detection      1.167s
+
+Bypass behavior contract verified:
+- With bypass=true: player state IS mutated (checks/mods/type recorded) but ActionIDs are cleared (nil).
+- With bypass=false: ActionIDs flow through unmodified.
+- Mirrors Java's hackedserver.bypass permission check in CustomPayloadListener.performActions().
+
+Full suite: go test ./plugins/detection/... → PASS, exit 0, no regressions.

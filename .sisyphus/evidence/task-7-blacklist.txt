@@ -1,0 +1,26 @@
+=== RUN   TestForgeBlacklist
+=== RUN   TestForgeBlacklist/BlacklistedModFromModInfo
+=== RUN   TestForgeBlacklist/BlacklistedModFromProcessMods
+=== RUN   TestForgeBlacklist/BlacklistedModTriggersActionIDs
+=== RUN   TestForgeBlacklist/WhitelistedModNoTrigger
+=== RUN   TestForgeBlacklist/IsForgeBlacklistedHelper
+=== RUN   TestForgeBlacklist/IsForgeWhitelistedHelper
+=== RUN   TestForgeBlacklist/BlacklistCaseInsensitive
+=== RUN   TestForgeBlacklist/FormatModBlacklistedColor
+=== RUN   TestForgeBlacklist/FormatModWhitelistedColor
+=== RUN   TestForgeBlacklist/FormatModVersionIncluded
+=== RUN   TestForgeBlacklist/FormatModVersionExcluded
+--- PASS: TestForgeBlacklist (0.00s)
+    --- PASS: TestForgeBlacklist/BlacklistedModFromModInfo (0.00s)
+    --- PASS: TestForgeBlacklist/BlacklistedModFromProcessMods (0.00s)
+    --- PASS: TestForgeBlacklist/BlacklistedModTriggersActionIDs (0.00s)
+    --- PASS: TestForgeBlacklist/WhitelistedModNoTrigger (0.00s)
+    --- PASS: TestForgeBlacklist/IsForgeBlacklistedHelper (0.00s)
+    --- PASS: TestForgeBlacklist/IsForgeWhitelistedHelper (0.00s)
+    --- PASS: TestForgeBlacklist/BlacklistCaseInsensitive (0.00s)
+    --- PASS: TestForgeBlacklist/FormatModBlacklistedColor (0.00s)
+    --- PASS: TestForgeBlacklist/FormatModWhitelistedColor (0.00s)
+    --- PASS: TestForgeBlacklist/FormatModVersionIncluded (0.00s)
+    --- PASS: TestForgeBlacklist/FormatModVersionExcluded (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)

@@ -1,0 +1,90 @@
+Task 17 — Build/Vet Finalization Evidence
+Date: 2026-03-11
+Environment: Windows, Go 1.24.1, CGO_ENABLED=0
+
+=== COMMAND 1: go build ./... ===
+Exit code: 0
+Output: (none — clean build)
+
+=== COMMAND 2: go test ./plugins/detection/... -v ===
+Exit code: 0
+Result: ALL PASS
+
+Tests run (130+ subtests across all groups):
+
+  TestActionsExecute          — 10 subtests PASS
+  TestActionsDelay            — 6 subtests PASS
+  TestRenderPlaceholders      — 6 subtests PASS
+  TestResolveDelay            — 6 subtests PASS
+  TestBedrockBrandPositive    — 7 subtests PASS
+  TestBedrockBrandNegative    — 10 subtests PASS
+  TestApplyBedrockBrandPositive — 3 subtests PASS
+  TestApplyBedrockBrandNegative — 4 subtests PASS
+  TestConfigHolderGetReturnsInitial — PASS
+  TestConfigHolderReloadBadPath     — PASS
+  TestConfigHolderReloadSucceeds    — PASS
+  TestGateUUIDToGoogle              — PASS
+  TestGateUUIDToGoogleNil           — PASS
+  TestCommandReloadBadPath          — PASS
+  TestCommandReloadPermissionDenied — PASS
+  TestCommandListEmpty              — PASS
+  TestCommandCheckUnknownPlayer     — PASS
+  TestCommandCheckKnownPlayerGenericChecks — PASS
+  TestCommandCheckList        — 10 subtests PASS
+  TestResolveSubmodulePaths   — 6 subtests PASS (real submodule present)
+  TestResolveSubmodulePathsMissing     — PASS
+  TestResolveSubmodulePathsMissingFile — PASS
+  TestConfigTomlMapping       — 11 subtests PASS
+  TestConfigMissingFile       — PASS
+  TestForgeBlacklist          — 11 subtests PASS
+  TestForgeRegisterFallback   — 23 subtests PASS
+  TestBrandHandler            — 9 subtests PASS
+  TestChannelHandler          — 4 subtests PASS
+  TestBypassSkip              — 6 subtests PASS
+  TestIntegrationE2E          — PASS (full pipeline: GenericMatch→Forge→Lunar→Bedrock→Actions→Commands)
+  TestIntegrationErrorPaths   — 12 subtests PASS
+  TestLunarDecodeValid        — 4 subtests PASS
+  TestLunarDecodeInvalid      — 6 subtests PASS
+  TestLunarBlacklist          — 13 subtests PASS
+  TestLunarNoBlacklist        — 14 subtests PASS
+  TestPlayerConcurrencyGenericChecks    — PASS
+  TestPlayerConcurrencyLunarMods        — PASS
+  TestPlayerConcurrencyForgeMods        — PASS
+  TestPlayerConcurrencyPendingActions   — PASS
+  TestPlayerConcurrencyBedrockAndForgeType — PASS
+  TestPlayerConcurrency       — 5 subtests PASS
+  TestPlayerStore             — 8 subtests PASS
+  TestDetectedPlayerGenericChecks  — PASS
+  TestDetectedPlayerLunarMods      — PASS
+  TestDetectedPlayerForgeMods      — PASS
+  TestDetectedPlayerForgeClientType — PASS
+  TestDetectedPlayerBedrock        — PASS
+  TestDetectedPlayerPendingActions — PASS
+  TestLunarModInfoTypeHelpers  — PASS
+  TestForgeModInfoString       — PASS
+  TestForgeClientTypeString    — PASS
+  TestPluginMessageLunarRoute  — 5 subtests PASS
+  TestPluginMessageIgnoreOther — 6 subtests PASS
+  TestLunarHandlerBypass       — PASS
+  TestLunarHandlerEqualFold    — PASS
+  TestPlugin                   — 2 subtests PASS
+  TestInitWiring               — PASS (31 generic checks, 1 action loaded)
+  TestDisconnectCleanup        — PASS
+  TestStartupGuardPresent      — PASS
+  TestStartupGuardMissing      — PASS
+  TestGenericMatcherKnown      — 32 subtests PASS
+  TestGenericMatcherDedupe     — 7 subtests PASS
+
+Package result line:
+  ok  github.com/minekube/gate-plugin-template/plugins/detection  1.451s
+  ?   github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1  [no test files]
+  ?   github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1  [no test files]
+
+=== COMMAND 3: go vet ./plugins/detection/... ===
+Exit code: 0
+Output: (none — clean)
+
+=== SUMMARY ===
+go build ./...                           PASS (exit 0)
+go test ./plugins/detection/... -v       PASS (exit 0, all tests)
+go vet ./plugins/detection/...           PASS (exit 0, no issues)

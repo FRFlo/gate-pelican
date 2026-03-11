@@ -1,0 +1,34 @@
+=== RUN   TestGenericMatcherDedupe
+=== PAUSE TestGenericMatcherDedupe
+=== CONT  TestGenericMatcherDedupe
+=== RUN   TestGenericMatcherDedupe/first_trigger_true_repeated_false
+=== PAUSE TestGenericMatcherDedupe/first_trigger_true_repeated_false
+=== RUN   TestGenericMatcherDedupe/different_message_same_channel_not_suppressed
+=== PAUSE TestGenericMatcherDedupe/different_message_same_channel_not_suppressed
+=== RUN   TestGenericMatcherDedupe/different_channel_same_message_not_suppressed
+=== PAUSE TestGenericMatcherDedupe/different_channel_same_message_not_suppressed
+=== RUN   TestGenericMatcherDedupe/dedupe_off_allows_repeated_triggers
+=== PAUSE TestGenericMatcherDedupe/dedupe_off_allows_repeated_triggers
+=== RUN   TestGenericMatcherDedupe/dedupe_isolated_per_player
+=== PAUSE TestGenericMatcherDedupe/dedupe_isolated_per_player
+=== RUN   TestGenericMatcherDedupe/dedupe_nil_history_with_skip_duplicates_false
+=== PAUSE TestGenericMatcherDedupe/dedupe_nil_history_with_skip_duplicates_false
+=== RUN   TestGenericMatcherDedupe/remove_clears_player_history
+=== PAUSE TestGenericMatcherDedupe/remove_clears_player_history
+=== CONT  TestGenericMatcherDedupe/first_trigger_true_repeated_false
+=== CONT  TestGenericMatcherDedupe/different_channel_same_message_not_suppressed
+=== CONT  TestGenericMatcherDedupe/dedupe_isolated_per_player
+=== CONT  TestGenericMatcherDedupe/remove_clears_player_history
+=== CONT  TestGenericMatcherDedupe/dedupe_nil_history_with_skip_duplicates_false
+=== CONT  TestGenericMatcherDedupe/dedupe_off_allows_repeated_triggers
+=== CONT  TestGenericMatcherDedupe/different_message_same_channel_not_suppressed
+--- PASS: TestGenericMatcherDedupe (0.00s)
+    --- PASS: TestGenericMatcherDedupe/first_trigger_true_repeated_false (0.00s)
+    --- PASS: TestGenericMatcherDedupe/different_channel_same_message_not_suppressed (0.00s)
+    --- PASS: TestGenericMatcherDedupe/dedupe_isolated_per_player (0.00s)
+    --- PASS: TestGenericMatcherDedupe/remove_clears_player_history (0.00s)
+    --- PASS: TestGenericMatcherDedupe/dedupe_nil_history_with_skip_duplicates_false (0.00s)
+    --- PASS: TestGenericMatcherDedupe/dedupe_off_allows_repeated_triggers (0.00s)
+    --- PASS: TestGenericMatcherDedupe/different_message_same_channel_not_suppressed (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)

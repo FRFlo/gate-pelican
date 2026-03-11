@@ -1,0 +1,24 @@
+=== RUN   TestBedrockBrandNegative
+=== RUN   TestBedrockBrandNegative/empty
+=== RUN   TestBedrockBrandNegative/vanilla
+=== RUN   TestBedrockBrandNegative/fabric
+=== RUN   TestBedrockBrandNegative/forge
+=== RUN   TestBedrockBrandNegative/lunar_client
+=== RUN   TestBedrockBrandNegative/labymod
+=== RUN   TestBedrockBrandNegative/badlion
+=== RUN   TestBedrockBrandNegative/optifine
+=== RUN   TestBedrockBrandNegative/random_string
+=== RUN   TestBedrockBrandNegative/partial_mismatch
+--- PASS: TestBedrockBrandNegative (0.00s)
+    --- PASS: TestBedrockBrandNegative/empty (0.00s)
+    --- PASS: TestBedrockBrandNegative/vanilla (0.00s)
+    --- PASS: TestBedrockBrandNegative/fabric (0.00s)
+    --- PASS: TestBedrockBrandNegative/forge (0.00s)
+    --- PASS: TestBedrockBrandNegative/lunar_client (0.00s)
+    --- PASS: TestBedrockBrandNegative/labymod (0.00s)
+    --- PASS: TestBedrockBrandNegative/badlion (0.00s)
+    --- PASS: TestBedrockBrandNegative/optifine (0.00s)
+    --- PASS: TestBedrockBrandNegative/random_string (0.00s)
+    --- PASS: TestBedrockBrandNegative/partial_mismatch (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	3.884s

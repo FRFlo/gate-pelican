@@ -1,0 +1,30 @@
+Task 11 — Actions System: TestActionsDelay Evidence
+Generated: 2026-03-11
+
+Command:
+  go test ./plugins/detection/... -run TestActionsDelay -v -count=1
+
+Output:
+=== RUN   TestActionsDelay
+=== RUN   TestActionsDelay/global_delay_used_when_per_action_nil
+=== RUN   TestActionsDelay/per_action_delay_overrides_global
+=== RUN   TestActionsDelay/per_action_zero_delay_overrides_global
+=== RUN   TestActionsDelay/global_zero_delay_immediate_execution
+=== RUN   TestActionsDelay/real_clock_fires_asynchronously
+=== RUN   TestActionsDelay/multiple_actions_independent_delays
+--- PASS: TestActionsDelay (0.60s)
+    --- PASS: TestActionsDelay/global_delay_used_when_per_action_nil (0.00s)
+    --- PASS: TestActionsDelay/per_action_delay_overrides_global (0.00s)
+    --- PASS: TestActionsDelay/per_action_zero_delay_overrides_global (0.00s)
+    --- PASS: TestActionsDelay/global_zero_delay_immediate_execution (0.00s)
+    --- PASS: TestActionsDelay/real_clock_fires_asynchronously (0.20s)
+    --- PASS: TestActionsDelay/multiple_actions_independent_delays (0.40s)
+PASS
+ok  github.com/minekube/gate-plugin-template/plugins/detection  1.546s
+
+Delay semantics verified:
+  - nil DelayTicks → uses global ActionDelayTicks
+  - *int64(40) → overrides global (40 ticks = 2s)
+  - *int64(0) → explicit zero, overrides global even when global > 0
+  - RealClock: fires asynchronously after 50ms (1 tick)
+  - Multiple actions with different delays fire independently

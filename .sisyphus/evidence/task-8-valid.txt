@@ -1,0 +1,14 @@
+=== RUN   TestLunarDecodeValid
+=== RUN   TestLunarDecodeValid/single_fabric_mod
+=== RUN   TestLunarDecodeValid/multiple_mods_mixed_types
+=== RUN   TestLunarDecodeValid/empty_mod_list_is_valid
+=== RUN   TestLunarDecodeValid/mod_with_empty_id_skipped
+--- PASS: TestLunarDecodeValid (0.00s)
+    --- PASS: TestLunarDecodeValid/single_fabric_mod (0.00s)
+    --- PASS: TestLunarDecodeValid/multiple_mods_mixed_types (0.00s)
+    --- PASS: TestLunarDecodeValid/empty_mod_list_is_valid (0.00s)
+    --- PASS: TestLunarDecodeValid/mod_with_empty_id_skipped (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	0.921s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]

@@ -1,0 +1,35 @@
+Task 16 — Integration Test Wave: TestIntegrationE2E Evidence
+=============================================================
+
+Date: 2026-03-11
+Command: go test ./plugins/detection/... -run TestIntegrationE2E -v -timeout 60s
+
+OUTPUT:
+=== RUN   TestIntegrationE2E
+    integration_test.go:98: forge triggers: 0
+    integration_test.go:115: lunar triggers: 0
+    integration_test.go:132: bedrock: label="Bedrock" actions=[]
+    integration_test.go:195: E2E integration: OK — player TestPlayer has checks: [fabric 5_zig_mod forge lunar_client]
+--- PASS: TestIntegrationE2E (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	1.232s
+
+RESULT: PASS
+
+Test Coverage (E2E flow exercised):
+1. Real submodule TOML config loaded (all 6 files: config, generic, actions, forge, lunar, bedrock)
+2. Player state construction (PlayerStore.Register + Get)
+3. GenericMatch on a real check from generic.toml (channel-only, no message filter)
+4. Player.AddGenericCheck + HasGenericCheck state verified
+5. ProcessForgeModInfo with FML2 type + myfakemod → forge mods recorded on player
+6. ProcessLunarHandshake with sodium (FABRIC_EXTERNAL) → lunar mods recorded on player
+7. ApplyBedrockBrand("Geyser-Fabric") → bedrock detected on player, label returned
+8. ActionExecutor.Execute with ImmediateClock — alert placeholder substituted (<player> + <name>)
+9. Console command placeholder substituted
+10. formatCheckOutput via newMockSource/fakeCommandContext — output contains player name + check ID
+11. handleListFromEntries with 1 entry — output contains player name
+12. All assertions pass without panics
+
+Note: forge triggers=0 and lunar triggers=0 because the real forge.toml and lunar.toml
+don't have mark_forge/mark_lunar configured to generate triggers for these particular
+test inputs (which is expected — detection state is still recorded correctly).

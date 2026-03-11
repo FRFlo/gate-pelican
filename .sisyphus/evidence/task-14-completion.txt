@@ -1,0 +1,42 @@
+Task 14 - Full Init Wiring + Lifecycle
+======================================
+Date: 2026-03-11
+
+VERIFICATION RESULTS
+--------------------
+1. go test ./plugins/detection/... -run TestInitWiring
+   PASS (7 subtests)
+
+2. go test ./plugins/detection/... -run TestDisconnectCleanup
+   PASS (3 subtests)
+
+3. go build ./plugins/detection/...
+   EXIT 0 (no errors)
+
+4. go test ./plugins/detection/... (full suite regression)
+   ok github.com/minekube/gate-plugin-template/plugins/detection
+
+FILES CHANGED
+-------------
+plugins/detection/plugin.go
+  - Replaced &MessageHistory{} with NewMessageHistory() (bug fix: internal map was nil)
+  - Full initDetection: loads TOML config, builds PlayerStore/MessageHistory/configHolder/ActionExecutor,
+    registers lunar:apollo channel via p.ChannelRegistrar().Register(),
+    registers /detection command via p.Command().Register(),
+    subscribes to PostLoginEvent, DisconnectEvent, PlayerClientBrandEvent,
+    PlayerChannelRegisterEvent, PlayerModInfoEvent, PluginMessageEvent
+
+plugins/detection/plugin_test.go
+  - Removed broken init_returns_nil subtest (passed nil proxy, panics with live wiring)
+  - Added TestInitWiring (7 subtests): post_login, brand bypass, channel bypass,
+    lunar non-match, pending action queue/execute
+  - Added TestDisconnectCleanup (3 subtests): store removal, history cleared,
+    fresh player after removal
+
+ARCHITECTURE NOTES
+------------------
+- All event handlers are thin closures over (store, history, cfgHolder, executor)
+- Pure detection logic (HandleBrandPayload, HandleChannelRegister, ProcessForgeModInfo,
+  HandleLunarPluginMessage) is called from closures — testable without proxy
+- buildCallbacks() returns nil-callback ActionCallbacks; real callbacks wired in Task 16
+- bypass semantics: state mutated, ActionIDs cleared (nil) before queuing

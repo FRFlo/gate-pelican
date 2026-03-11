@@ -1,0 +1,17 @@
+=== RUN   TestPluginMessageLunarRoute
+=== RUN   TestPluginMessageLunarRoute/WrongChannelIgnored
+=== RUN   TestPluginMessageLunarRoute/EmptyPayloadIgnored
+=== RUN   TestPluginMessageLunarRoute/MalformedPayloadIgnored
+=== RUN   TestPluginMessageLunarRoute/ChannelIDCaseInsensitive
+=== RUN   TestPluginMessageLunarRoute/DisabledConfigNoTriggers
+--- PASS: TestPluginMessageLunarRoute (0.00s)
+    --- PASS: TestPluginMessageLunarRoute/WrongChannelIgnored (0.00s)
+    --- PASS: TestPluginMessageLunarRoute/EmptyPayloadIgnored (0.00s)
+    --- PASS: TestPluginMessageLunarRoute/MalformedPayloadIgnored (0.00s)
+    --- PASS: TestPluginMessageLunarRoute/ChannelIDCaseInsensitive (0.00s)
+    --- PASS: TestPluginMessageLunarRoute/DisabledConfigNoTriggers (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	0.986s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]
+Exit: 0

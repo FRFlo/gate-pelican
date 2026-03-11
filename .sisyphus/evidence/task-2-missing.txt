@@ -1,0 +1,4 @@
+=== RUN   TestConfigMissingFile
+--- PASS: TestConfigMissingFile (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)

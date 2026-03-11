@@ -1,0 +1,26 @@
+=== RUN   TestConfigTomlMapping
+=== RUN   TestConfigTomlMapping/config_toml
+=== RUN   TestConfigTomlMapping/generic_toml_enabled
+=== RUN   TestConfigTomlMapping/generic_toml_check_count
+=== RUN   TestConfigTomlMapping/generic_toml_known_checks
+=== RUN   TestConfigTomlMapping/generic_toml_message_fields
+=== RUN   TestConfigTomlMapping/generic_toml_actions
+=== RUN   TestConfigTomlMapping/actions_toml
+=== RUN   TestConfigTomlMapping/forge_toml
+=== RUN   TestConfigTomlMapping/forge_toml_colors
+=== RUN   TestConfigTomlMapping/lunar_toml
+=== RUN   TestConfigTomlMapping/bedrock_toml
+--- PASS: TestConfigTomlMapping (0.00s)
+    --- PASS: TestConfigTomlMapping/config_toml (0.00s)
+    --- PASS: TestConfigTomlMapping/generic_toml_enabled (0.00s)
+    --- PASS: TestConfigTomlMapping/generic_toml_check_count (0.00s)
+    --- PASS: TestConfigTomlMapping/generic_toml_known_checks (0.00s)
+    --- PASS: TestConfigTomlMapping/generic_toml_message_fields (0.00s)
+    --- PASS: TestConfigTomlMapping/generic_toml_actions (0.00s)
+    --- PASS: TestConfigTomlMapping/actions_toml (0.00s)
+    --- PASS: TestConfigTomlMapping/forge_toml (0.00s)
+    --- PASS: TestConfigTomlMapping/forge_toml_colors (0.00s)
+    --- PASS: TestConfigTomlMapping/lunar_toml (0.00s)
+    --- PASS: TestConfigTomlMapping/bedrock_toml (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)

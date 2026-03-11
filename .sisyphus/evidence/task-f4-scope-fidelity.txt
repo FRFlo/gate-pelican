@@ -1,0 +1,41 @@
+Task: F4 Scope Fidelity Check
+Date: 2026-03-11
+
+Plan criteria source:
+- .sisyphus/plans/hackedserver-detection-port.md:567
+
+Executed commands and evidence:
+
+1) Changed-files scope command
+Command:
+  git diff --name-only -- plugins/detection gate.go
+Output:
+  gate.go
+
+2) Forbidden integration references check (strict criterion)
+Command:
+  grep -R -n "Geyser\|Floodgate" plugins/detection || true
+Output:
+  (no matches)
+
+3) Detection package test suite
+Command:
+  go test ./plugins/detection/...
+Output:
+  ok  github.com/minekube/gate-plugin-template/plugins/detection 14.912s
+  ?   github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1 [no test files]
+  ?   github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1 [no test files]
+
+4) Detection package build
+Command:
+  go build ./plugins/detection/...
+Output:
+  (no output, exit 0)
+
+Planned-vs-implemented fidelity verdict:
+- APPROVE
+
+Reasons:
+- Strict forbidden-pattern grep criterion now passes with zero matches.
+- Bedrock detection behavior is preserved (tests pass under `go test ./plugins/detection/...`).
+- Build succeeds for `plugins/detection` scope.

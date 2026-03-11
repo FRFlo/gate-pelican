@@ -1,0 +1,26 @@
+=== RUN   TestCommandCheckList
+=== RUN   TestCommandCheckList/check_no_data
+=== RUN   TestCommandCheckList/check_generic_checks_sorted
+=== RUN   TestCommandCheckList/check_forge_mods_shown
+=== RUN   TestCommandCheckList/check_forge_mods_hidden_without_flag
+=== RUN   TestCommandCheckList/check_lunar_mods_shown
+=== RUN   TestCommandCheckList/check_bedrock_shown
+=== RUN   TestCommandCheckList/check_bedrock_not_shown_when_not_detected
+=== RUN   TestCommandCheckList/list_empty
+=== RUN   TestCommandCheckList/list_sorted_populated
+=== RUN   TestCommandCheckList/list_checks_per_player_shown
+--- PASS: TestCommandCheckList (0.00s)
+    --- PASS: TestCommandCheckList/check_no_data (0.00s)
+    --- PASS: TestCommandCheckList/check_generic_checks_sorted (0.00s)
+    --- PASS: TestCommandCheckList/check_forge_mods_shown (0.00s)
+    --- PASS: TestCommandCheckList/check_forge_mods_hidden_without_flag (0.00s)
+    --- PASS: TestCommandCheckList/check_lunar_mods_shown (0.00s)
+    --- PASS: TestCommandCheckList/check_bedrock_shown (0.00s)
+    --- PASS: TestCommandCheckList/check_bedrock_not_shown_when_not_detected (0.00s)
+    --- PASS: TestCommandCheckList/list_empty (0.00s)
+    --- PASS: TestCommandCheckList/list_sorted_populated (0.00s)
+    --- PASS: TestCommandCheckList/list_checks_per_player_shown (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]

@@ -1,0 +1,40 @@
+=== Offline Codegen Evidence: Task 8 (upstream schema correction) ===
+
+Date: 2026-03-11
+
+--- Canonical Sources (upstream, verbatim) ---
+handshake.proto:  https://buf.build/lunarclient/apollo/raw/main/-/lunarclient/apollo/player/v1/handshake.proto
+version.proto:    https://buf.build/lunarclient/apollo/raw/main/-/lunarclient/apollo/common/v1/version.proto
+
+--- Vendored Proto Files ---
+plugins/detection/proto/lunarclient/apollo/player/v1/handshake.proto  (upstream verbatim + go_package option)
+plugins/detection/proto/lunarclient/apollo/common/v1/version.proto    (upstream verbatim + go_package option)
+
+--- Tools (all local, no network required at build time) ---
+protoc:         libprotoc 29.3  (C:/tmp/protoc/bin/protoc.exe)
+protoc-gen-go:  v1.36.11        (C:/Users/fdelelis/go/bin/protoc-gen-go.exe)
+google/protobuf/struct.proto:   bundled in C:/tmp/protoc/include/
+
+--- Protoc Command (re-runnable offline) ---
+C:/tmp/protoc/bin/protoc.exe \
+  --plugin=protoc-gen-go="C:/Users/fdelelis/go/bin/protoc-gen-go.exe" \
+  --go_out=plugins/detection/lunar_pb \
+  --go_opt=paths=source_relative \
+  -I plugins/detection/proto \
+  -I C:/tmp/protoc/include \
+  plugins/detection/proto/lunarclient/apollo/player/v1/handshake.proto \
+  plugins/detection/proto/lunarclient/apollo/common/v1/version.proto
+
+--- Exit Code ---
+protoc exit: 0
+
+--- Generated Files ---
+plugins/detection/lunar_pb/lunarclient/apollo/player/v1/handshake.pb.go
+plugins/detection/lunar_pb/lunarclient/apollo/common/v1/version.pb.go
+
+--- go build ./plugins/detection/... ---
+exit: 0
+
+--- Retired ---
+plugins/detection/proto/lunarclient/apollo/player/v1/player.proto  (reconstructed schema - REMOVED)
+plugins/detection/lunar_pb/lunarclient/apollo/player/v1/player.pb.go (REMOVED)

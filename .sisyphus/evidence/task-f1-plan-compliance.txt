@@ -1,0 +1,28 @@
+﻿F1 Plan Compliance Audit
+Timestamp: 2026-03-11T14:26:18.3649868+01:00
+Repo: C:\Users\fdelelis\Desktop\gate-plugged
+
+Required files exist:
+PASS  plugins/detection/plugin.go  (11837 bytes, 2026-03-11T13:59:44)
+PASS  plugins/detection/generic.go  (5234 bytes, 2026-03-11T10:52:08)
+PASS  plugins/detection/forge.go  (12696 bytes, 2026-03-11T10:54:58)
+PASS  plugins/detection/lunar.go  (8533 bytes, 2026-03-11T11:28:23)
+PASS  plugins/detection/bedrock.go  (1549 bytes, 2026-03-11T10:52:00)
+PASS  plugins/detection/actions.go  (6348 bytes, 2026-03-11T11:08:06)
+PASS  plugins/detection/commands.go  (8913 bytes, 2026-03-11T11:49:03)
+
+Forbidden scope: no /detection inv: PASS (matches=0)
+Forbidden scope: no .yml config usage in detection plugin: PASS (matches=0)
+
+Plan QA scenario commands (intent):
+- test -f plugins/detection/plugin.go
+- test -f plugins/detection/generic.go
+- test -f plugins/detection/forge.go
+- test -f plugins/detection/lunar.go
+- test -f plugins/detection/bedrock.go
+- test -f plugins/detection/actions.go
+- test -f plugins/detection/commands.go
+- grep -R "/detection inv" -n plugins/detection && exit 1 || true
+- grep -R "\.yml" -n plugins/detection && exit 1 || true
+
+Verdict: APPROVE

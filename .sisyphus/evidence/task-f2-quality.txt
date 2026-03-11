@@ -1,0 +1,121 @@
+QUALITY GATE REVIEW — F2
+Date: 2026-03-11
+Reviewer: Sisyphus-Junior (F2 gate)
+
+============================================================
+COMMAND 1: go build ./...
+============================================================
+Command:    go build ./...
+Exit code:  0
+Stdout:     (empty — clean build, no warnings)
+Stderr:     (empty)
+Result:     PASS
+
+============================================================
+COMMAND 2: go test ./plugins/detection/... -v
+============================================================
+Command:    go test ./plugins/detection/... -v
+Exit code:  0
+
+Test groups and counts (all PASS):
+  TestActionsExecute                 10 subtests   PASS
+  TestActionsDelay                    6 subtests   PASS (incl. real-clock 0.60s)
+  TestRenderPlaceholders              6 subtests   PASS
+  TestResolveDelay                    6 subtests   PASS
+  TestBedrockBrandPositive            7 subtests   PASS
+  TestBedrockBrandNegative           10 subtests   PASS
+  TestApplyBedrockBrandPositive       3 subtests   PASS
+  TestApplyBedrockBrandNegative       4 subtests   PASS
+  TestConfigHolderGetReturnsInitial   1 subtest    PASS
+  TestConfigHolderReloadBadPath       1 subtest    PASS
+  TestConfigHolderReloadSucceeds      1 subtest    PASS
+  TestGateUUIDToGoogle                1 subtest    PASS
+  TestGateUUIDToGoogleNil             1 subtest    PASS
+  TestCommandReloadBadPath            1 subtest    PASS
+  TestCommandReloadPermissionDenied   1 subtest    PASS
+  TestCommandListEmpty                1 subtest    PASS
+  TestCommandCheckUnknownPlayer       1 subtest    PASS
+  TestCommandCheckKnownPlayerGenericChecks 1 subtest PASS
+  TestCommandCheckList               10 subtests   PASS
+  TestResolveSubmodulePaths           6 subtests   PASS
+  TestResolveSubmodulePathsMissing    1 subtest    PASS
+  TestResolveSubmodulePathsMissingFile 1 subtest   PASS
+  TestConfigTomlMapping              11 subtests   PASS
+  TestConfigMissingFile               1 subtest    PASS
+  TestForgeBlacklist                 11 subtests   PASS
+  TestForgeRegisterFallback          23 subtests   PASS
+  TestBrandHandler                    9 subtests   PASS
+  TestChannelHandler                  4 subtests   PASS
+  TestBypassSkip                      6 subtests   PASS
+  TestIntegrationE2E                  1 test       PASS
+  TestIntegrationErrorPaths          12 subtests   PASS
+  TestLunarDecodeValid                4 subtests   PASS
+  TestLunarDecodeInvalid              6 subtests   PASS
+  TestLunarBlacklist                 13 subtests   PASS
+  TestLunarNoBlacklist               14 subtests   PASS
+  TestPlayerConcurrencyGenericChecks  1 test       PASS
+  TestPlayerConcurrencyLunarMods      1 test       PASS
+  TestPlayerConcurrencyForgeMods      1 test       PASS
+  TestPlayerConcurrencyPendingActions 1 test       PASS
+  TestPlayerConcurrencyBedrockAndForgeType 1 test  PASS
+  TestPlayerConcurrency               5 subtests   PASS
+  TestPlayerStore                     8 subtests   PASS
+  TestDetectedPlayerGenericChecks     1 test       PASS
+  TestDetectedPlayerLunarMods         1 test       PASS
+  TestDetectedPlayerForgeMods         1 test       PASS
+  TestDetectedPlayerForgeClientType   1 test       PASS
+  TestDetectedPlayerBedrock           1 test       PASS
+  TestDetectedPlayerPendingActions    1 test       PASS
+  TestLunarModInfoTypeHelpers         1 test       PASS
+  TestForgeModInfoString              1 test       PASS
+  TestForgeClientTypeString           1 test       PASS
+  TestPluginMessageLunarRoute         5 subtests   PASS
+  TestPluginMessageIgnoreOther        6 subtests   PASS
+  TestLunarHandlerBypass              1 test       PASS
+  TestLunarHandlerEqualFold           1 test       PASS
+  TestPlugin                          2 subtests   PASS
+  TestInitWiring                      1 test       PASS
+  TestDisconnectCleanup               1 test       PASS
+  TestStartupGuardPresent             1 test       PASS
+  TestStartupGuardMissing             1 test       PASS
+  TestGenericMatcherKnown            32 subtests   PASS
+  TestGenericMatcherDedupe            7 subtests   PASS
+
+  lunar_pb sub-packages:             [no test files] (expected — proto-generated)
+
+Total result: PASS — all tests green, exit 0.
+Approximate total: 170+ individual subtests across 60+ top-level test functions.
+
+============================================================
+COMMAND 3: go vet ./plugins/detection/...
+============================================================
+Command:    go vet ./plugins/detection/...
+Exit code:  0
+Stdout:     (empty — no issues)
+Stderr:     (empty)
+Result:     PASS
+
+============================================================
+KNOWN LIMITATIONS (documented, non-blocking)
+============================================================
+- go test -race: requires CGO (unavailable on this Windows machine,
+  CGO_ENABLED=0, no gcc). Exit 2 with "go: -race requires cgo".
+  Classification: environment constraint, not a test failure.
+  Documented in Task 17 and issues.md. Race verification deferred to
+  Linux CI where cgo is available.
+
+- LSP ghost file: player.pb.go shows duplicate-type errors in IDE.
+  go build and go vet both exit 0 — stale LSP cache, not a real error.
+
+============================================================
+VERDICT
+============================================================
+APPROVE
+
+All three quality gate commands pass cleanly:
+  [PASS] go build ./...                     exit 0
+  [PASS] go test ./plugins/detection/... -v exit 0 (170+ subtests, all green)
+  [PASS] go vet ./plugins/detection/...     exit 0
+
+No failures. No masked errors. No skipped tests.
+The detection package is ready for merge.

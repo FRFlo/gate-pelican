@@ -1,0 +1,32 @@
+=== RUN   TestLunarBlacklist
+=== RUN   TestLunarBlacklist/BlacklistedModTriggersActions
+=== RUN   TestLunarBlacklist/BlacklistedModActionIDs
+=== RUN   TestLunarBlacklist/BlacklistedModName
+=== RUN   TestLunarBlacklist/MultipleBlacklistedMods
+=== RUN   TestLunarBlacklist/LunarClientMarkTrigger
+=== RUN   TestLunarBlacklist/FabricMarkTrigger
+=== RUN   TestLunarBlacklist/ForgeMarkTrigger
+=== RUN   TestLunarBlacklist/LunarClientGenericCheckSet
+=== RUN   TestLunarBlacklist/FabricGenericCheckSet
+=== RUN   TestLunarBlacklist/ForgeGenericCheckSet
+=== RUN   TestLunarBlacklist/ModsPersistedToPlayer
+=== RUN   TestLunarBlacklist/PlayerHasLunarDataAfterProcess
+=== RUN   TestLunarBlacklist/ForgeModWithVersionInName
+--- PASS: TestLunarBlacklist (0.00s)
+    --- PASS: TestLunarBlacklist/BlacklistedModTriggersActions (0.00s)
+    --- PASS: TestLunarBlacklist/BlacklistedModActionIDs (0.00s)
+    --- PASS: TestLunarBlacklist/BlacklistedModName (0.00s)
+    --- PASS: TestLunarBlacklist/MultipleBlacklistedMods (0.00s)
+    --- PASS: TestLunarBlacklist/LunarClientMarkTrigger (0.00s)
+    --- PASS: TestLunarBlacklist/FabricMarkTrigger (0.00s)
+    --- PASS: TestLunarBlacklist/ForgeMarkTrigger (0.00s)
+    --- PASS: TestLunarBlacklist/LunarClientGenericCheckSet (0.00s)
+    --- PASS: TestLunarBlacklist/FabricGenericCheckSet (0.00s)
+    --- PASS: TestLunarBlacklist/ForgeGenericCheckSet (0.00s)
+    --- PASS: TestLunarBlacklist/ModsPersistedToPlayer (0.00s)
+    --- PASS: TestLunarBlacklist/PlayerHasLunarDataAfterProcess (0.00s)
+    --- PASS: TestLunarBlacklist/ForgeModWithVersionInName (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	0.937s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]

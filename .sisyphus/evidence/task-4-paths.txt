@@ -1,0 +1,37 @@
+=== RUN   TestResolveSubmodulePaths
+=== RUN   TestResolveSubmodulePaths/Config
+    config_toml_paths_test.go:67: OK: Config → C:\Users\fdelelis\Desktop\gate-plugged\HackedServer\hackedserver-core\src\main\resources\config.toml
+=== RUN   TestResolveSubmodulePaths/Generic
+    config_toml_paths_test.go:67: OK: Generic → C:\Users\fdelelis\Desktop\gate-plugged\HackedServer\hackedserver-core\src\main\resources\generic.toml
+=== RUN   TestResolveSubmodulePaths/Actions
+    config_toml_paths_test.go:67: OK: Actions → C:\Users\fdelelis\Desktop\gate-plugged\HackedServer\hackedserver-core\src\main\resources\actions.toml
+=== RUN   TestResolveSubmodulePaths/Forge
+    config_toml_paths_test.go:67: OK: Forge → C:\Users\fdelelis\Desktop\gate-plugged\HackedServer\hackedserver-core\src\main\resources\forge.toml
+=== RUN   TestResolveSubmodulePaths/Lunar
+    config_toml_paths_test.go:67: OK: Lunar → C:\Users\fdelelis\Desktop\gate-plugged\HackedServer\hackedserver-core\src\main\resources\lunar.toml
+=== RUN   TestResolveSubmodulePaths/Bedrock
+    config_toml_paths_test.go:67: OK: Bedrock → C:\Users\fdelelis\Desktop\gate-plugged\HackedServer\hackedserver-core\src\main\resources\bedrock.toml
+--- PASS: TestResolveSubmodulePaths (0.00s)
+    --- PASS: TestResolveSubmodulePaths/Config (0.00s)
+    --- PASS: TestResolveSubmodulePaths/Generic (0.00s)
+    --- PASS: TestResolveSubmodulePaths/Actions (0.00s)
+    --- PASS: TestResolveSubmodulePaths/Forge (0.00s)
+    --- PASS: TestResolveSubmodulePaths/Lunar (0.00s)
+    --- PASS: TestResolveSubmodulePaths/Bedrock (0.00s)
+=== RUN   TestResolveSubmodulePathsMissing
+    config_toml_paths_test.go:86: Error message:
+        detection: HackedServer submodule resources not found at "C:\\Users\\fdelelis\\AppData\\Local\\Temp\\TestResolveSubmodulePathsMissing1558144556\\001\\HackedServer\\hackedserver-core\\src\\main\\resources"
+        The HackedServer git submodule must be initialised before starting Gate.
+        Run the following commands from the repository root:
+          git submodule init
+          git submodule update --recursive
+--- PASS: TestResolveSubmodulePathsMissing (0.00s)
+=== RUN   TestResolveSubmodulePathsMissingFile
+    config_toml_paths_test.go:121: Error message:
+        detection: required TOML file missing: "C:\\Users\\fdelelis\\AppData\\Local\\Temp\\TestResolveSubmodulePathsMissingFile4145597312\\001\\HackedServer\\hackedserver-core\\src\\main\\resources\\config.toml"
+        Ensure the HackedServer submodule is initialised:
+          git submodule init
+          git submodule update --recursive
+--- PASS: TestResolveSubmodulePathsMissingFile (0.01s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)

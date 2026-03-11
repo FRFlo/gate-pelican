@@ -1,0 +1,24 @@
+# Task 15 — Startup Guard: Submodule Missing
+# Date: 2026-03-11
+# Command: go test ./plugins/detection/... -run TestStartupGuardMissing -v
+
+=== RUN   TestStartupGuardMissing
+    startup_guard_test.go:65: startup guard missing: error = detection: HackedServer submodule resources not found at "C:\\Users\\fdelelis\\AppData\\Local\\Temp\\TestStartupGuardMissing3499017019\\001\\HackedServer\\hackedserver-core\\src\\main\\resources"
+        The HackedServer git submodule must be initialised before starting Gate.
+        Run the following commands from the repository root:
+          git submodule init
+          git submodule update --recursive
+--- PASS: TestStartupGuardMissing (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	4.002s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]
+EXIT:0
+
+# Verification:
+# - resourcesDirFromBaseDir returns a non-nil error when pointed at an empty temp dir
+# - Error message contains all 3 required remediation phrases:
+#     "git submodule init"          ✓
+#     "git submodule update --recursive"  ✓
+#     "HackedServer"                ✓
+# - Test PASS — startup guard fails loudly with actionable guidance when submodule is missing

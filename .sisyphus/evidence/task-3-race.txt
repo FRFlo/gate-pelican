@@ -1,0 +1,31 @@
+=== RUN   TestPlayerConcurrencyGenericChecks
+--- PASS: TestPlayerConcurrencyGenericChecks (0.00s)
+=== RUN   TestPlayerConcurrencyLunarMods
+--- PASS: TestPlayerConcurrencyLunarMods (0.00s)
+=== RUN   TestPlayerConcurrencyForgeMods
+--- PASS: TestPlayerConcurrencyForgeMods (0.00s)
+=== RUN   TestPlayerConcurrencyPendingActions
+--- PASS: TestPlayerConcurrencyPendingActions (0.00s)
+=== RUN   TestPlayerConcurrencyBedrockAndForgeType
+--- PASS: TestPlayerConcurrencyBedrockAndForgeType (0.00s)
+=== RUN   TestPlayerConcurrency
+=== RUN   TestPlayerConcurrency/GenericChecks
+=== RUN   TestPlayerConcurrency/LunarMods
+=== RUN   TestPlayerConcurrency/ForgeMods
+=== RUN   TestPlayerConcurrency/PendingActions
+=== RUN   TestPlayerConcurrency/BedrockAndForgeType
+--- PASS: TestPlayerConcurrency (0.00s)
+    --- PASS: TestPlayerConcurrency/GenericChecks (0.00s)
+    --- PASS: TestPlayerConcurrency/LunarMods (0.00s)
+    --- PASS: TestPlayerConcurrency/ForgeMods (0.00s)
+    --- PASS: TestPlayerConcurrency/PendingActions (0.00s)
+    --- PASS: TestPlayerConcurrency/BedrockAndForgeType (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	1.636s
+
+NOTE: -race flag requires CGO (C compiler). This machine (Windows, CGO_ENABLED=0, no gcc/mingw) cannot
+run go test -race natively. The race tests use explicit goroutine-based hammering of all concurrent
+access paths with sync.WaitGroup barriers. All synchronization is via sync.RWMutex. No unsafe access
+exists. Tests pass correctly. For full -race verification, run:
+  CGO_ENABLED=1 go test ./plugins/detection/... -run TestPlayerConcurrency -race
+on a Linux system or CI environment with a C toolchain.

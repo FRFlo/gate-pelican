@@ -1,0 +1,8 @@
+=== RUN   TestCommandReloadBadPath
+--- PASS: TestCommandReloadBadPath (0.00s)
+=== RUN   TestCommandReloadPermissionDenied
+--- PASS: TestCommandReloadPermissionDenied (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]

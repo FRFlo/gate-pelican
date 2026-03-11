@@ -1,0 +1,17 @@
+# Task 15 — Startup Guard: Submodule Present
+# Date: 2026-03-11
+# Command: go test ./plugins/detection/... -run TestStartupGuardPresent -v
+
+=== RUN   TestStartupGuardPresent
+    startup_guard_test.go:38: startup guard present: OK — resourcesDir=C:\Users\fdelelis\Desktop\gate-plugged\HackedServer\hackedserver-core\src\main\resources, generic checks=31
+--- PASS: TestStartupGuardPresent (0.01s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	4.099s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]
+EXIT:0
+
+# Verification:
+# - resourcesDirFromBaseDir resolves correctly to the submodule
+# - LoadDetectionConfig loads 31 generic checks from real TOML files
+# - Test PASS — startup guard succeeds when submodule is present

@@ -1,0 +1,50 @@
+=== RUN   TestForgeRegisterFallback
+=== RUN   TestForgeRegisterFallback/ParseBrandForge
+=== RUN   TestForgeRegisterFallback/ParseBrandNeoForge
+=== RUN   TestForgeRegisterFallback/ParseBrandFML
+=== RUN   TestForgeRegisterFallback/ParseBrandVanilla
+=== RUN   TestForgeRegisterFallback/ParseBrandEmpty
+=== RUN   TestForgeRegisterFallback/ParseChannelsBasic
+=== RUN   TestForgeRegisterFallback/ParseChannelsBuiltinExcluded
+=== RUN   TestForgeRegisterFallback/ParseChannelsFabricExcluded
+=== RUN   TestForgeRegisterFallback/ParseChannelsDeduplicated
+=== RUN   TestForgeRegisterFallback/ParseChannelsEmpty
+=== RUN   TestForgeRegisterFallback/ParseChannelsMissingColon
+=== RUN   TestForgeRegisterFallback/ParseRawPayloadNullSeparated
+=== RUN   TestForgeRegisterFallback/ParseRawPayloadEmpty
+=== RUN   TestForgeRegisterFallback/RegisterFallbackIntegration
+=== RUN   TestForgeRegisterFallback/ProcessModsDeduplication
+=== RUN   TestForgeRegisterFallback/ProcessModsDisabledConfig
+=== RUN   TestForgeRegisterFallback/ProcessClientTypeForge
+=== RUN   TestForgeRegisterFallback/ProcessClientTypeNeoForge
+=== RUN   TestForgeRegisterFallback/ProcessClientTypeAlreadyMarked
+=== RUN   TestForgeRegisterFallback/ProcessModInfoType_FML
+=== RUN   TestForgeRegisterFallback/ProcessModInfoType_FML2
+=== RUN   TestForgeRegisterFallback/ProcessModInfoType_NeoForge
+=== RUN   TestForgeRegisterFallback/ProcessModInfoDisabled
+--- PASS: TestForgeRegisterFallback (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseBrandForge (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseBrandNeoForge (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseBrandFML (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseBrandVanilla (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseBrandEmpty (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseChannelsBasic (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseChannelsBuiltinExcluded (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseChannelsFabricExcluded (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseChannelsDeduplicated (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseChannelsEmpty (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseChannelsMissingColon (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseRawPayloadNullSeparated (0.00s)
+    --- PASS: TestForgeRegisterFallback/ParseRawPayloadEmpty (0.00s)
+    --- PASS: TestForgeRegisterFallback/RegisterFallbackIntegration (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessModsDeduplication (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessModsDisabledConfig (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessClientTypeForge (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessClientTypeNeoForge (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessClientTypeAlreadyMarked (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessModInfoType_FML (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessModInfoType_FML2 (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessModInfoType_NeoForge (0.00s)
+    --- PASS: TestForgeRegisterFallback/ProcessModInfoDisabled (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	(cached)

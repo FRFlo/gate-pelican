@@ -1,0 +1,35 @@
+Task 11 — Actions System: TestActionsExecute Evidence
+Generated: 2026-03-11
+
+Command:
+  go test ./plugins/detection/... -run TestActionsExecute -v
+
+Output:
+=== RUN   TestActionsExecute
+=== RUN   TestActionsExecute/alert_placeholder_substitution
+=== RUN   TestActionsExecute/console_command_substitution
+=== RUN   TestActionsExecute/player_command_substitution
+=== RUN   TestActionsExecute/opped_player_command_substitution
+=== RUN   TestActionsExecute/multiple_actions_executed_in_order
+=== RUN   TestActionsExecute/unknown_action_id_skipped
+=== RUN   TestActionsExecute/empty_action_ids_no_panic
+=== RUN   TestActionsExecute/nil_callbacks_no_panic
+=== RUN   TestActionsExecute/multiple_commands_all_executed
+=== RUN   TestActionsExecute/no_alert_when_send_alert_empty
+--- PASS: TestActionsExecute (0.00s)
+    --- PASS: TestActionsExecute/alert_placeholder_substitution (0.00s)
+    --- PASS: TestActionsExecute/console_command_substitution (0.00s)
+    --- PASS: TestActionsExecute/player_command_substitution (0.00s)
+    --- PASS: TestActionsExecute/opped_player_command_substitution (0.00s)
+    --- PASS: TestActionsExecute/multiple_actions_executed_in_order (0.00s)
+    --- PASS: TestActionsExecute/unknown_action_id_skipped (0.00s)
+    --- PASS: TestActionsExecute/empty_action_ids_no_panic (0.00s)
+    --- PASS: TestActionsExecute/nil_callbacks_no_panic (0.00s)
+    --- PASS: TestActionsExecute/multiple_commands_all_executed (0.00s)
+    --- PASS: TestActionsExecute/no_alert_when_send_alert_empty (0.00s)
+PASS
+ok  github.com/minekube/gate-plugin-template/plugins/detection
+
+Full suite also PASS (no regressions):
+  go build ./... → exit 0
+  go vet ./plugins/detection/... → exit 0

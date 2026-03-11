@@ -1,0 +1,58 @@
+Task 16 — Integration Test Wave: TestIntegrationErrorPaths Evidence
+=====================================================================
+
+Date: 2026-03-11
+Command: go test ./plugins/detection/... -run TestIntegrationErrorPaths -v -timeout 60s
+
+OUTPUT:
+=== RUN   TestIntegrationErrorPaths
+=== RUN   TestIntegrationErrorPaths/nil_player_generic_match
+=== RUN   TestIntegrationErrorPaths/nil_player_forge
+=== RUN   TestIntegrationErrorPaths/nil_player_lunar
+=== RUN   TestIntegrationErrorPaths/nil_player_bedrock
+=== RUN   TestIntegrationErrorPaths/empty_brand_not_bedrock
+=== RUN   TestIntegrationErrorPaths/empty_channels_forge
+=== RUN   TestIntegrationErrorPaths/null_byte_payload_forge
+    integration_test.go:288: null-byte payload yielded 0 non-builtin mods
+=== RUN   TestIntegrationErrorPaths/unknown_action_id_skipped
+=== RUN   TestIntegrationErrorPaths/message_history_remove
+=== RUN   TestIntegrationErrorPaths/player_store_idempotent_register
+=== RUN   TestIntegrationErrorPaths/list_empty
+=== RUN   TestIntegrationErrorPaths/render_placeholders_no_match
+--- PASS: TestIntegrationErrorPaths (0.00s)
+    --- PASS: TestIntegrationErrorPaths/nil_player_generic_match (0.00s)
+    --- PASS: TestIntegrationErrorPaths/nil_player_forge (0.00s)
+    --- PASS: TestIntegrationErrorPaths/nil_player_lunar (0.00s)
+    --- PASS: TestIntegrationErrorPaths/nil_player_bedrock (0.00s)
+    --- PASS: TestIntegrationErrorPaths/empty_brand_not_bedrock (0.00s)
+    --- PASS: TestIntegrationErrorPaths/empty_channels_forge (0.00s)
+    --- PASS: TestIntegrationErrorPaths/null_byte_payload_forge (0.00s)
+    --- PASS: TestIntegrationErrorPaths/unknown_action_id_skipped (0.00s)
+    --- PASS: TestIntegrationErrorPaths/message_history_remove (0.00s)
+    --- PASS: TestIntegrationErrorPaths/player_store_idempotent_register (0.00s)
+    --- PASS: TestIntegrationErrorPaths/list_empty (0.00s)
+    --- PASS: TestIntegrationErrorPaths/render_placeholders_no_match (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	1.196s
+
+RESULT: PASS
+
+Error Path Coverage (12 subtests):
+1. nil_player_generic_match     — GenericMatch with freshly constructed player, no panic
+2. nil_player_forge             — ProcessForgeModInfo(nil) returns nil, no panic
+3. nil_player_lunar             — ProcessLunarHandshake(nil) returns empty result, no panic
+4. nil_player_bedrock           — ApplyBedrockBrand with Enabled=false returns detected=false (early exit)
+5. empty_brand_not_bedrock      — IsBedrock("") returns false
+6. empty_channels_forge         — ParseModsFromChannels([]) returns empty, no panic
+7. null_byte_payload_forge      — ParseModsFromRegisterPayload with all builtin namespaces yields 0 mods
+8. unknown_action_id_skipped    — Execute with unknown ID fires no callbacks (silent skip)
+9. message_history_remove       — Remove clears history; subsequent IsDuplicate returns false
+10. player_store_idempotent_reg — Double Register preserves pending actions, pointer identity stable
+11. list_empty                  — handleListFromEntries(nil) returns "No players..." message
+12. render_placeholders_no_match — RenderPlaceholders on string with no placeholders is identity
+
+No panics. No unintended state mutations. All assertions passed.
+
+Full package regression check (go test ./plugins/detection/...):
+  All tests PASS — exit code 0
+  No regressions introduced by Task 16

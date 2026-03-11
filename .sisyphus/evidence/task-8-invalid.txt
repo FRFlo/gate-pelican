@@ -1,0 +1,18 @@
+=== RUN   TestLunarDecodeInvalid
+=== RUN   TestLunarDecodeInvalid/nil_payload
+=== RUN   TestLunarDecodeInvalid/empty_payload
+=== RUN   TestLunarDecodeInvalid/garbage_bytes
+=== RUN   TestLunarDecodeInvalid/wrong_type_url
+=== RUN   TestLunarDecodeInvalid/valid_any_invalid_inner_bytes
+=== RUN   TestLunarDecodeInvalid/single_byte_payload
+--- PASS: TestLunarDecodeInvalid (0.00s)
+    --- PASS: TestLunarDecodeInvalid/nil_payload (0.00s)
+    --- PASS: TestLunarDecodeInvalid/empty_payload (0.00s)
+    --- PASS: TestLunarDecodeInvalid/garbage_bytes (0.00s)
+    --- PASS: TestLunarDecodeInvalid/wrong_type_url (0.00s)
+    --- PASS: TestLunarDecodeInvalid/valid_any_invalid_inner_bytes (0.00s)
+    --- PASS: TestLunarDecodeInvalid/single_byte_payload (0.00s)
+PASS
+ok  	github.com/minekube/gate-plugin-template/plugins/detection	0.868s
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/common/v1	[no test files]
+?   	github.com/minekube/gate-plugin-template/plugins/detection/lunar_pb/lunarclient/apollo/player/v1	[no test files]
