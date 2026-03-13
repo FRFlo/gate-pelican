@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	guuid "github.com/google/uuid"
+	"go.minekube.com/brigodier"
 	"go.minekube.com/common/minecraft/component"
 	"go.minekube.com/gate/pkg/command"
 	"go.minekube.com/gate/pkg/util/permission"
@@ -148,27 +149,49 @@ func TestCommandReloadBadPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(src.lastMessage(), "reload failed") {
-		t.Fatalf("expected 'reload failed' message, got: %q", src.lastMessage())
+	if !strings.Contains(src.lastMessage(), "Reload failed") {
+		t.Fatalf("expected 'Reload failed' message, got: %q", src.lastMessage())
 	}
 }
 
-// TestCommandReloadPermissionDenied verifies reload is blocked without the
-// hackedserver.command.reload permission.
-func TestCommandReloadPermissionDenied(t *testing.T) {
-	src := newMockSource("hackedserver.command") // reload perm missing
+func TestCommandReloadNoPermissionGate(t *testing.T) {
+	src := newMockSource()
 	h := newConfigHolder(&DetectionConfig{}, "/tmp")
 
 	var mgr command.Manager
 	mgr.Register(newDetectionCommand(nil, NewPlayerStore(), h))
 
-	// Brigodier returns an error (not a message) when the requirement fails.
 	err := mgr.Do(context.Background(), src, "detection reload")
-	// No message should have been sent — the command was gated by Requires.
-	if len(src.messages) > 0 {
-		t.Fatalf("expected no message when permission denied, got: %v", src.messages)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
-	_ = err // brigodier returns "unknown command" error for failed requirement
+	if !strings.Contains(src.lastMessage(), "Reload failed") {
+		t.Fatalf("expected reload to execute without permission gate, got: %q", src.lastMessage())
+	}
+}
+
+func TestSuggestPlayerNames(t *testing.T) {
+	b := &brigodier.SuggestionsBuilder{
+		Input:              "detection check Al",
+		InputLowerCase:     "detection check al",
+		Start:              len("detection check "),
+		Remaining:          "Al",
+		RemainingLowerCase: "al",
+	}
+	s := suggestPlayerNames(b, []string{"Zed", "Alice", "Alphonse", "Bob"})
+	if s == nil || len(s.Suggestions) == 0 {
+		t.Fatal("expected at least one suggestion")
+	}
+	hasAlice := false
+	for _, sug := range s.Suggestions {
+		if sug.Text == "Alice" {
+			hasAlice = true
+			break
+		}
+	}
+	if !hasAlice {
+		t.Fatalf("expected Alice in suggestions, got: %+v", s.Suggestions)
+	}
 }
 
 // ─── handleList tests ─────────────────────────────────────────────────────────
@@ -187,8 +210,8 @@ func TestCommandListEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(src.lastMessage(), "No players") {
-		t.Fatalf("expected 'No players' message, got: %q", src.lastMessage())
+	if !strings.Contains(src.lastMessage(), "No chocolate players spotted") {
+		t.Fatalf("expected empty spotted-players message, got: %q", src.lastMessage())
 	}
 }
 
@@ -206,8 +229,8 @@ func TestCommandCheckUnknownPlayer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(src.lastMessage(), "none") {
-		t.Fatalf("expected 'none' for player with no checks, got: %q", src.lastMessage())
+	if !strings.Contains(src.lastMessage(), "No mods detected") {
+		t.Fatalf("expected 'No mods detected' for player with no checks, got: %q", src.lastMessage())
 	}
 	if !strings.Contains(src.lastMessage(), "GhostPlayer") {
 		t.Fatalf("expected player name in output, got: %q", src.lastMessage())
@@ -263,8 +286,8 @@ func TestCommandCheckList(t *testing.T) {
 		if !strings.Contains(msg, "Alice") {
 			t.Fatalf("expected player name in output, got: %q", msg)
 		}
-		if !strings.Contains(msg, "Generic checks: none") {
-			t.Fatalf("expected 'Generic checks: none', got: %q", msg)
+		if !strings.Contains(msg, "No mods detected") {
+			t.Fatalf("expected 'No mods detected', got: %q", msg)
 		}
 	})
 
@@ -412,8 +435,8 @@ func TestCommandCheckList(t *testing.T) {
 		if err := handleListFromEntries(ctx, nil); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if !strings.Contains(src.lastMessage(), "No players") {
-			t.Fatalf("expected 'No players' in empty list output, got: %q", src.lastMessage())
+		if !strings.Contains(src.lastMessage(), "No chocolate players spotted") {
+			t.Fatalf("expected 'No chocolate players spotted' in empty list output, got: %q", src.lastMessage())
 		}
 	})
 
@@ -441,9 +464,6 @@ func TestCommandCheckList(t *testing.T) {
 		if !(posAlice < posMike && posMike < posZara) {
 			t.Fatalf("list entries not sorted alphabetically: %q", msg)
 		}
-		if !strings.Contains(msg, "3") {
-			t.Fatalf("expected count 3 in list header, got: %q", msg)
-		}
 	})
 
 	t.Run("list_checks_per_player_shown", func(t *testing.T) {
@@ -457,9 +477,12 @@ func TestCommandCheckList(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		msg := src.lastMessage()
+		if !strings.Contains(msg, "Alpha") {
+			t.Fatalf("expected player name in list output, got: %q", msg)
+		}
 		for _, chk := range []string{"fabric", "labymod_v1"} {
-			if !strings.Contains(msg, chk) {
-				t.Fatalf("expected check %q in list output, got: %q", chk, msg)
+			if strings.Contains(msg, chk) {
+				t.Fatalf("did not expect per-player check %q in list output, got: %q", chk, msg)
 			}
 		}
 	})

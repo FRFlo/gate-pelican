@@ -350,7 +350,7 @@ func TestIntegrationErrorPaths(t *testing.T) {
 		if err := handleListFromEntries(ctx, nil); err != nil {
 			t.Fatalf("handleListFromEntries(nil) returned error: %v", err)
 		}
-		if !strings.Contains(src.lastMessage(), "No players") {
+		if !strings.Contains(src.lastMessage(), "No chocolate players spotted") {
 			t.Errorf("empty list message unexpected: %q", src.lastMessage())
 		}
 	})

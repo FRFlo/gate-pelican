@@ -11,7 +11,18 @@ import (
 	"go.minekube.com/brigodier"
 	. "go.minekube.com/common/minecraft/component"
 	"go.minekube.com/gate/pkg/command"
+	"go.minekube.com/gate/pkg/command/suggest"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
+)
+
+const (
+	hsPrefix = "§bHackedServer §8| §r"
+	colGreen = "§a"
+	colGray  = "§8"
+	colGold  = "§e"
+	colRed   = "§c"
+	colAqua  = "§b"
+	colReset = "§r"
 )
 
 // configHolder is a thread-safe wrapper that holds the current DetectionConfig
@@ -72,50 +83,35 @@ func gateUUIDToGoogle(id [16]byte) guuid.UUID {
 //	/detection reload           – reloads TOML config from the submodule
 //	/detection check <player>   – shows what is known about a player
 //	/detection list             – lists all players with generic checks
-//
-// Permissions:
-//
-//	hackedserver.command           – required to use /detection at all
-//	hackedserver.command.reload    – required for the reload subcommand
-//	hackedserver.command.check     – required for the check subcommand
-//	hackedserver.command.list      – required for the list subcommand
 func newDetectionCommand(
 	p *proxy.Proxy,
 	store *PlayerStore,
 	cfgHolder *configHolder,
 ) brigodier.LiteralNodeBuilder {
-	const (
-		permBase   = "hackedserver.command"
-		permReload = "hackedserver.command.reload"
-		permCheck  = "hackedserver.command.check"
-		permList   = "hackedserver.command.list"
-	)
-
 	const playerArg = "player"
 
 	return brigodier.Literal("detection").
-		Requires(command.Requires(func(c *command.RequiresContext) bool {
-			return c.Source.HasPermission(permBase)
-		})).
 		Executes(command.Command(func(c *command.Context) error {
-			return c.Source.SendMessage(&Text{Content: "Usage: /detection <reload|check|list>"})
+			return c.Source.SendMessage(&Text{Content: strings.Join([]string{
+				hsPrefix + "§7Available commands" + colReset,
+				colGray + "/hs " + "§7reload §8» §7reload the plugin" + colReset,
+				colGray + "/hs " + "§7check " + colAqua + "target §8» §7check player detected mods" + colReset,
+				colGray + "/hs " + "§7list §8» §7list all spotted players" + colReset,
+			}, "\n")})
 		})).
 		Then(
 			brigodier.Literal("reload").
-				Requires(command.Requires(func(c *command.RequiresContext) bool {
-					return c.Source.HasPermission(permReload)
-				})).
 				Executes(command.Command(func(c *command.Context) error {
 					return handleReload(c, cfgHolder)
 				})),
 		).
 		Then(
 			brigodier.Literal("check").
-				Requires(command.Requires(func(c *command.RequiresContext) bool {
-					return c.Source.HasPermission(permCheck)
-				})).
 				Then(
 					brigodier.Argument(playerArg, brigodier.String).
+						Suggests(command.SuggestFunc(func(_ *command.Context, b *brigodier.SuggestionsBuilder) *brigodier.Suggestions {
+							return suggestPlayerNames(b, onlinePlayerNames(p))
+						})).
 						Executes(command.Command(func(c *command.Context) error {
 							return handleCheck(c, p, store, cfgHolder, c.String(playerArg))
 						})),
@@ -123,21 +119,37 @@ func newDetectionCommand(
 		).
 		Then(
 			brigodier.Literal("list").
-				Requires(command.Requires(func(c *command.RequiresContext) bool {
-					return c.Source.HasPermission(permList)
-				})).
 				Executes(command.Command(func(c *command.Context) error {
 					return handleList(c, p, store)
 				})),
 		)
 }
 
+func onlinePlayerNames(p *proxy.Proxy) []string {
+	if p == nil {
+		return nil
+	}
+	names := make([]string, 0, len(p.Players()))
+	for _, player := range p.Players() {
+		names = append(names, player.Username())
+	}
+	return names
+}
+
+func suggestPlayerNames(b *brigodier.SuggestionsBuilder, names []string) *brigodier.Suggestions {
+	if len(names) == 0 {
+		return b.Build()
+	}
+	sort.Strings(names)
+	return suggest.Similar(b, names).Build()
+}
+
 // handleReload reloads the TOML configuration from the submodule.
 func handleReload(c *command.Context, cfgHolder *configHolder) error {
 	if err := cfgHolder.reload(); err != nil {
-		return c.Source.SendMessage(&Text{Content: fmt.Sprintf("Detection: reload failed: %v", err)})
+		return c.Source.SendMessage(&Text{Content: hsPrefix + colRed + fmt.Sprintf("Reload failed: %v", err) + colReset})
 	}
-	return c.Source.SendMessage(&Text{Content: "Detection: configuration reloaded."})
+	return c.Source.SendMessage(&Text{Content: hsPrefix + colGreen + "Successfully reloaded" + colReset})
 }
 
 // handleCheck shows detected mod information for the named player.
@@ -152,7 +164,7 @@ func handleCheck(
 	target := p.PlayerByName(username)
 	if target == nil {
 		return c.Source.SendMessage(&Text{
-			Content: fmt.Sprintf("Player %q is not online.", username),
+			Content: hsPrefix + colRed + "Player not found: " + username + colReset,
 		})
 	}
 
@@ -168,17 +180,18 @@ func formatCheckOutput(
 	cfg *DetectionConfig,
 ) error {
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("Detection info for %s:\n", username))
+	b.WriteString(hsPrefix + colAqua + "Checking " + colGold + username + colReset + "\n")
 
 	// ── Generic checks ────────────────────────────────────────────────────────
 	checks := dp.GenericChecks()
 	sort.Strings(checks)
 	if len(checks) > 0 {
-		b.WriteString("  Generic checks: ")
-		b.WriteString(strings.Join(checks, ", "))
-		b.WriteString("\n")
+		b.WriteString(hsPrefix + colGreen + "Detected mods:" + colReset + "\n")
+		for _, check := range checks {
+			b.WriteString(colGray + "- " + colGold + check + colReset + "\n")
+		}
 	} else {
-		b.WriteString("  Generic checks: none\n")
+		b.WriteString(hsPrefix + colGreen + "No mods detected" + colReset + "\n")
 	}
 
 	// ── Forge mods (if ShowModsInCheck is enabled) ─────────────────────────
@@ -188,16 +201,16 @@ func formatCheckOutput(
 			sort.Slice(mods, func(i, j int) bool {
 				return mods[i].ModID < mods[j].ModID
 			})
-			b.WriteString("  Forge mods:\n")
+			b.WriteString(hsPrefix + colGreen + "Forge/NeoForge mods:" + colReset + "\n")
 			for _, m := range mods {
 				if cfg.Forge.Settings.ShowModVersions && m.Version != "" {
-					b.WriteString(fmt.Sprintf("    - %s (%s)\n", m.ModID, m.Version))
+					b.WriteString(fmt.Sprintf("%s- %s (%s)%s\n", colGray, m.ModID, m.Version, colReset))
 				} else {
-					b.WriteString(fmt.Sprintf("    - %s\n", m.ModID))
+					b.WriteString(fmt.Sprintf("%s- %s%s\n", colGray, m.ModID, colReset))
 				}
 			}
 		} else {
-			b.WriteString("  Forge mods: none\n")
+			b.WriteString(hsPrefix + colGreen + "No Forge mods detected" + colReset + "\n")
 		}
 	}
 
@@ -208,28 +221,28 @@ func formatCheckOutput(
 			sort.Slice(mods, func(i, j int) bool {
 				return mods[i].ID < mods[j].ID
 			})
-			b.WriteString("  Lunar mods:\n")
+			b.WriteString(hsPrefix + colGreen + "Lunar Client mods:" + colReset + "\n")
 			for _, m := range mods {
-				line := fmt.Sprintf("    - %s", m.ID)
+				line := fmt.Sprintf("%s- %s", colGray, m.ID)
 				if cfg.Lunar.Settings.ShowModVersions && m.Version != "" {
 					line += fmt.Sprintf(" (%s)", m.Version)
 				}
 				if cfg.Lunar.Settings.ShowModTypes && m.Type != "" {
 					line += fmt.Sprintf(" [%s]", m.Type)
 				}
-				b.WriteString(line + "\n")
+				b.WriteString(line + colReset + "\n")
 			}
 		} else {
-			b.WriteString("  Lunar mods: none\n")
+			b.WriteString(hsPrefix + colGreen + "No Lunar Client mods detected" + colReset + "\n")
 		}
 	}
 
 	// ── Bedrock ───────────────────────────────────────────────────────────
 	if dp.IsBedrockDetected() {
-		b.WriteString("  Bedrock: yes\n")
+		b.WriteString(hsPrefix + colGreen + "Bedrock: yes" + colReset + "\n")
 	}
 
-	return c.Source.SendMessage(&Text{Content: b.String()})
+	return c.Source.SendMessage(&Text{Content: strings.TrimRight(b.String(), "\n")})
 }
 
 // handleList lists all online players that have at least one generic check triggered.
@@ -261,7 +274,7 @@ type namedCheckEntry struct {
 // Extracted for testability without a real *proxy.Proxy.
 func handleListFromEntries(c *command.Context, entries []namedCheckEntry) error {
 	if len(entries) == 0 {
-		return c.Source.SendMessage(&Text{Content: "No players with generic checks detected."})
+		return c.Source.SendMessage(&Text{Content: hsPrefix + colGreen + "No chocolate players spotted" + colReset})
 	}
 
 	sort.Slice(entries, func(i, j int) bool {
@@ -269,9 +282,9 @@ func handleListFromEntries(c *command.Context, entries []namedCheckEntry) error 
 	})
 
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("Detected players (%d):\n", len(entries)))
+	b.WriteString(hsPrefix + colGreen + "Spotted players:" + colReset + "\n")
 	for _, e := range entries {
-		b.WriteString(fmt.Sprintf("  %s: %s\n", e.name, strings.Join(e.checks, ", ")))
+		b.WriteString(colGray + "- " + colGold + e.name + colReset + "\n")
 	}
-	return c.Source.SendMessage(&Text{Content: b.String()})
+	return c.Source.SendMessage(&Text{Content: strings.TrimRight(b.String(), "\n")})
 }
