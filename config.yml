@@ -1,13 +1,27 @@
-# This is a simplified config where the rest of the settings are omitted and will be set by default.
-# See https://gate.minekube.com/guide/config/ for the full configuration options.
 config:
   bind: 0.0.0.0:25565
+  requireBuiltinCommandPermissions: false
   onlineMode: true
   servers:
-    server1: localhost:25566
-    server2: localhost:25567
+    folia: 127.0.0.1:25566
   try:
-    - server1
-    - server2
-  # Disabling it allows our global-chat plugin to cancel messages.
-  forceKeyAuthentication: false
+    - folia
+  status:
+    motd: |
+      §6§lBAGUETTECRAFT §f- §bLes Creepers sont polis ici
+      §e§o"Omelette du fromage" §7| §a1.21.1 Folia turbo
+    showMaxPlayers: 200
+    players:
+      online: 42
+      max: 200
+      sample:
+        - name: "§6Chef Baguette §7- en cuisine"
+          id: "00000000-0000-0000-0000-000000000001"
+        - name: "§bGiga Poulet §7- chasse les zombies"
+          id: "00000000-0000-0000-0000-000000000002"
+        - name: "§dMonsieur Creeper §7- expert en calins"
+          id: "00000000-0000-0000-0000-000000000003"
+    logPingRequests: false
+  forwarding:
+    mode: velocity
+    velocitySecret: 2tN8Wv3yQp9Kf6Ld1sR4mX7cBj0Hu5Za
