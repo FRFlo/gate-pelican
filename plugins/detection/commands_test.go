@@ -41,10 +41,21 @@ func (m *mockSource) PermissionValue(perm string) permission.TriState {
 }
 
 func (m *mockSource) SendMessage(msg component.Component, opts ...command.MessageOption) error {
-	if t, ok := msg.(*component.Text); ok {
-		m.messages = append(m.messages, t.Content)
-	}
+	m.messages = append(m.messages, extractText(msg))
 	return nil
+}
+
+func extractText(msg component.Component) string {
+	t, ok := msg.(*component.Text)
+	if !ok {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteString(t.Content)
+	for _, child := range t.Extra {
+		b.WriteString(extractText(child))
+	}
+	return b.String()
 }
 
 func (m *mockSource) lastMessage() string {

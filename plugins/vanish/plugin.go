@@ -8,9 +8,11 @@ import (
 
 	"github.com/go-logr/logr"
 	guuid "github.com/google/uuid"
+	sharedcfg "github.com/minekube/gate-plugin-template/plugins/sharedconfig"
+	"github.com/minekube/gate-plugin-template/util/chatfmt"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/brigodier"
-	. "go.minekube.com/common/minecraft/component"
+	"go.minekube.com/common/minecraft/component"
 	"go.minekube.com/gate/pkg/command"
 	"go.minekube.com/gate/pkg/command/suggest"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
@@ -18,16 +20,26 @@ import (
 )
 
 const (
-	permCommand      = "vanish.command"
-	permOthers       = "vanish.command.others"
-	permSeeVanished  = "vanish.see"
-	vanishPrefix     = "§bVanish §8| §r"
-	vanishColorRed   = "§c"
-	vanishColorGreen = "§a"
-	vanishColorGray  = "§7"
-	vanishColorGold  = "§e"
-	vanishReset      = "§r"
+	permCommand     = "vanish.command"
+	permOthers      = "vanish.command.others"
+	permSeeVanished = "vanish.see"
 )
+
+var vanishPrefix = "<gray>[<aqua>Vanish</aqua>]</gray> "
+
+var vanishMessages = sharedcfg.VanishMessages{
+	NoPermission:       "<red>You do not have permission.</red>",
+	OnlyPlayers:        "<red>Only players can use /vanish without a target.</red>",
+	NoPermissionOthers: "<red>You do not have permission to target others.</red>",
+	ProxyUnavailable:   "<red>Proxy is unavailable for player lookup.</red>",
+	PlayerNotFound:     "<red>Player not found: {player}</red>",
+	TargetUnavailable:  "<red>Target unavailable.</red>",
+	StateEnabled:       "<green>enabled</green>",
+	StateDisabled:      "<red>disabled</red>",
+	ToggleSelf:         "<gray>Vanish {state}<gray>.</gray></gray>",
+	ToggleOther:        "<gray>Vanish {state}<gray> for <gold>{player}</gold>.</gray></gray>",
+	ToggleTarget:       "<gray>Your vanish is now {state}<gray>.</gray></gray>",
+}
 
 var Plugin = proxy.Plugin{
 	Name: "Vanish",
@@ -36,6 +48,12 @@ var Plugin = proxy.Plugin{
 
 func initVanish(ctx context.Context, p *proxy.Proxy) error {
 	log := logr.FromContextOrDiscard(ctx)
+	if rootCfg, err := sharedcfg.Load(); err == nil {
+		vanishPrefix = rootCfg.Plugins.Vanish.Prefix
+		vanishMessages = rootCfg.Plugins.Vanish.Messages
+	} else {
+		log.Error(err, "failed to load plugged.yml, using default vanish prefix")
+	}
 	store := newStore()
 
 	p.Command().RegisterWithAliases(newVanishCommand(p, store, log), "v")
@@ -100,12 +118,12 @@ func newVanishCommand(p *proxy.Proxy, s *store, log logr.Logger) brigodier.Liter
 	return brigodier.Literal("vanish").
 		Executes(command.Command(func(c *command.Context) error {
 			if !c.Source.HasPermission(permCommand) {
-				return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorRed + "You do not have permission." + vanishReset})
+				return c.Source.SendMessage(vanishMessage(vanishMessages.NoPermission))
 			}
 
 			self, ok := c.Source.(proxy.Player)
 			if !ok {
-				return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorRed + "Only players can use /vanish without a target." + vanishReset})
+				return c.Source.SendMessage(vanishMessage(vanishMessages.OnlyPlayers))
 			}
 
 			return toggleTargetVanish(c, p, s, log, self)
@@ -115,20 +133,20 @@ func newVanishCommand(p *proxy.Proxy, s *store, log logr.Logger) brigodier.Liter
 				Suggests(playerSuggestionProvider(p, s)).
 				Executes(command.Command(func(c *command.Context) error {
 					if !c.Source.HasPermission(permCommand) {
-						return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorRed + "You do not have permission." + vanishReset})
+						return c.Source.SendMessage(vanishMessage(vanishMessages.NoPermission))
 					}
 					if !c.Source.HasPermission(permOthers) {
-						return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorRed + "You do not have permission to target others." + vanishReset})
+						return c.Source.SendMessage(vanishMessage(vanishMessages.NoPermissionOthers))
 					}
 
 					if p == nil {
-						return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorRed + "Proxy is unavailable for player lookup." + vanishReset})
+						return c.Source.SendMessage(vanishMessage(vanishMessages.ProxyUnavailable))
 					}
 
 					targetName := c.String(playerArg)
 					target := p.PlayerByName(targetName)
 					if target == nil {
-						return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorRed + "Player not found: " + targetName + vanishReset})
+						return c.Source.SendMessage(vanishMessage(chatfmt.ApplyPlaceholders(vanishMessages.PlayerNotFound, map[string]string{"player": targetName})))
 					}
 
 					return toggleTargetVanish(c, p, s, log, target)
@@ -167,27 +185,31 @@ func canManageOthers(src command.Source) bool {
 
 func toggleTargetVanish(c *command.Context, p *proxy.Proxy, s *store, log logr.Logger, target proxy.Player) error {
 	if target == nil {
-		return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorRed + "Target unavailable." + vanishReset})
+		return c.Source.SendMessage(vanishMessage(vanishMessages.TargetUnavailable))
 	}
 
 	vanished := s.Toggle(gateUUIDToGoogle(target.ID()))
 	applyTargetVisibility(p, s, target, vanished, log)
 
-	state := vanishColorGreen + "enabled"
+	state := vanishMessages.StateEnabled
 	if !vanished {
-		state = vanishColorRed + "disabled"
+		state = vanishMessages.StateDisabled
 	}
 
 	if target.Username() == sourceName(c.Source) {
-		return c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorGray + "Vanish " + state + vanishColorGray + "." + vanishReset})
+		return c.Source.SendMessage(vanishMessage(chatfmt.ApplyPlaceholders(vanishMessages.ToggleSelf, map[string]string{"state": state})))
 	}
 
-	if err := c.Source.SendMessage(&Text{Content: vanishPrefix + vanishColorGray + "Vanish " + state + vanishColorGray + " for " + vanishColorGold + target.Username() + vanishColorGray + "." + vanishReset}); err != nil {
+	if err := c.Source.SendMessage(vanishMessage(chatfmt.ApplyPlaceholders(vanishMessages.ToggleOther, map[string]string{"state": state, "player": target.Username()}))); err != nil {
 		return err
 	}
 
-	_ = target.SendMessage(&Text{Content: vanishPrefix + vanishColorGray + "Your vanish is now " + state + vanishColorGray + "." + vanishReset})
+	_ = target.SendMessage(vanishMessage(chatfmt.ApplyPlaceholders(vanishMessages.ToggleTarget, map[string]string{"state": state})))
 	return nil
+}
+
+func vanishMessage(message string) component.Component {
+	return chatfmt.Render("Vanish", vanishPrefix, message)
 }
 
 func sourceName(src command.Source) string {

@@ -1,99 +1,66 @@
 package pelican
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"github.com/spf13/viper"
-	"go.minekube.com/gate/pkg/gate"
-	"gopkg.in/yaml.v3"
-	"os"
-	"path"
-	"strings"
+
+	sharedcfg "github.com/minekube/gate-plugin-template/plugins/sharedconfig"
 )
 
 type Config struct {
 	Token    string            `yaml:"token" json:"token"`
-	Url      string            `yaml:"url" json:"url"`
+	URL      string            `yaml:"url" json:"url"`
+	Prefix   string            `yaml:"prefix" json:"prefix"`
 	Autostop bool              `yaml:"autostop" json:"autostop"`
 	Delay    int               `yaml:"delay" json:"delay"`
 	Servers  map[string]string `yaml:"servers,omitempty" json:"servers,omitempty"`
+	Messages MessagesConfig    `yaml:"messages" json:"messages"`
+}
+
+type MessagesConfig struct {
+	ServerStartingWait string `yaml:"serverStartingWait" json:"serverStartingWait"`
+	ErrorStarting      string `yaml:"errorStarting" json:"errorStarting"`
+	StartingServer     string `yaml:"startingServer" json:"startingServer"`
 }
 
 var DefaultConfig = Config{
 	Token:    "Your Pelican token",
-	Url:      "https://demo.pelican.dev",
+	URL:      "https://demo.pelican.dev",
+	Prefix:   "<gray>[<aqua>Pelican</aqua>]</gray> ",
 	Autostop: true,
 	Delay:    60,
 	Servers: map[string]string{
 		"server1": "The UUID of the server you want to connect to",
 	},
+	Messages: MessagesConfig{
+		ServerStartingWait: "<yellow>Server is starting, please wait...</yellow>",
+		ErrorStarting:      "<red>Error starting server</red>",
+		StartingServer:     "<yellow>Starting server...</yellow>",
+	},
 }
 
-// LoadConfig loads in config.PelicanConfig from viper.
-// It is used by Start with the packages Viper if no WithConfig option is given.
-func LoadConfig(v *viper.Viper) (*Config, error) {
-	// Clone default config
+func LoadConfig() (*Config, error) {
 	cfg := func() Config { return DefaultConfig }()
-	// Load in Gate config
-	if err := fixedReadInConfig(v, &cfg); err != nil {
-		return &cfg, fmt.Errorf("error loading config: %w", err)
-	}
-	return &cfg, nil
-}
-
-func initViper() (*viper.Viper, error) {
-	v := gate.Viper
-	v.SetConfigName("pelican")
-	v.AddConfigPath(".")
-	// Load Environment Variables
-	v.SetEnvPrefix("GATE_PELICAN")
-	v.AutomaticEnv() // read in environment variables that match
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	return v, nil
-}
-
-func fixedReadInConfig(v *viper.Viper, defaultConfig *Config) error {
-	if defaultConfig == nil {
-		return v.ReadInConfig()
-	}
-
-	configFile := v.ConfigFileUsed()
-	if configFile == "" {
-		// Try to find config file using Viper's config finder logic
-		if err := v.ReadInConfig(); err != nil {
-			return err
-		}
-		configFile = v.ConfigFileUsed()
-		if configFile == "" {
-			return nil // no config file found
-		}
-	}
-
-	var (
-		unmarshal func([]byte, any) error
-		marshal   func(any) ([]byte, error)
-	)
-	switch path.Ext(configFile) {
-	case ".yaml", ".yml":
-		unmarshal = yaml.Unmarshal
-		marshal = yaml.Marshal
-	case ".json":
-		unmarshal = json.Unmarshal
-		marshal = json.Marshal
-	default:
-		return fmt.Errorf("unsupported config file format %q", configFile)
-	}
-	b, err := os.ReadFile(configFile)
+	rootCfg, err := sharedcfg.Load()
 	if err != nil {
-		return fmt.Errorf("error reading config file %q: %w", configFile, err)
-	}
-	if err = unmarshal(b, defaultConfig); err != nil {
-		return fmt.Errorf("error unmarshaling config file %q to %T: %w", configFile, defaultConfig, err)
-	}
-	if b, err = marshal(defaultConfig); err != nil {
-		return fmt.Errorf("error marshaling config file %q: %w", configFile, err)
+		return &cfg, fmt.Errorf("load shared config: %w", err)
 	}
 
-	return v.ReadConfig(bytes.NewReader(b))
+	p := rootCfg.Plugins.Pelican
+	cfg.Token = p.Token
+	cfg.URL = p.URL
+	cfg.Prefix = p.Prefix
+	cfg.Autostop = p.AutoStop
+	cfg.Delay = p.Delay
+	cfg.Servers = p.Servers
+	cfg.Messages = MessagesConfig{
+		ServerStartingWait: p.Messages.ServerStartingWait,
+		ErrorStarting:      p.Messages.ErrorStarting,
+		StartingServer:     p.Messages.StartingServer,
+	}
+
+	if cfg.Servers == nil {
+		cfg.Servers = map[string]string{}
+	}
+
+	return &cfg, nil
 }

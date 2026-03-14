@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
+	sharedcfg "github.com/minekube/gate-plugin-template/plugins/sharedconfig"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 	"go.minekube.com/gate/pkg/edition/java/proxy/message"
@@ -32,6 +33,12 @@ var Plugin = proxy.Plugin{
 func initDetection(ctx context.Context, p *proxy.Proxy) error {
 	log := logr.FromContextOrDiscard(ctx)
 	log.Info("Detection plugin loading...")
+	if rootCfg, err := sharedcfg.Load(); err == nil {
+		detectionPrefix = rootCfg.Plugins.Detection.Prefix
+		detectionMessages = rootCfg.Plugins.Detection.Messages
+	} else {
+		log.Error(err, "failed to load plugged.yml, using default detection prefix")
+	}
 
 	// ── 1. Resolve submodule resources directory ──────────────────────────────
 	baseDir, err := os.Getwd()

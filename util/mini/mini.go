@@ -97,6 +97,13 @@ func modify(key string, content string, style *c.Style) *c.Text {
 		}
 
 		newText = Gradient(content, *style, colors...)
+	default:
+		parsed, err := ParseColor(key)
+		if err == nil {
+			style.Color = parsed
+		}
+		newText.Content = content
+		newText.S = *style
 	}
 
 	return newText

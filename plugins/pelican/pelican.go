@@ -2,16 +2,11 @@ package pelican
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/go-logr/logr"
+	"github.com/minekube/gate-plugin-template/util/chatfmt"
 	"github.com/robinbraemer/event"
-	"github.com/spf13/viper"
-	"github.com/urfave/cli/v2"
-	"go.minekube.com/common/minecraft/color"
-	"go.minekube.com/common/minecraft/component"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
-	"os"
 	"time"
 )
 
@@ -23,20 +18,12 @@ var Plugin = proxy.Plugin{
 		log := logr.FromContextOrDiscard(ctx)
 		log.Info("Pelican plugin loading...")
 
-		v, err := initViper()
+		cfg, err := LoadConfig()
 		if err != nil {
-			return cli.Exit(err, 1)
+			return fmt.Errorf("error loading pelican config from plugged.yml: %w", err)
 		}
 
-		cfg, err := LoadConfig(v)
-		if err != nil {
-			if !(errors.As(err, &viper.ConfigFileNotFoundError{}) || os.IsNotExist(err)) {
-				err = fmt.Errorf("error reading config file %q: %w", v.ConfigFileUsed(), err)
-				return cli.Exit(err, 2)
-			}
-		}
-
-		c := NewHttpClient(cfg.Token, cfg.Url)
+		c := NewHttpClient(cfg.Token, cfg.URL)
 
 		event.Subscribe(p.Event(), 0, onKickedFromServerEvent(log, cfg, c))
 		if cfg.Autostop {
@@ -61,12 +48,7 @@ func onKickedFromServerEvent(log logr.Logger, cfg *Config, c *HttpClient) func(*
 			if _, ok := wakeSent[s]; ok {
 				if time.Since(wakeSent[s]) < 30*time.Second {
 					log.Info("Already sent wake to Pelican", "server", e.Server().ServerInfo().Name(), "pelican", s)
-					result := &proxy.RedirectPlayerKickResult{Message: &component.Text{
-						Content: "Server is starting, please wait...",
-						S: component.Style{
-							Color: color.Yellow,
-						},
-					}}
+					result := &proxy.RedirectPlayerKickResult{Message: chatfmt.Render("Pelican", cfg.Prefix, cfg.Messages.ServerStartingWait)}
 					e.SetResult(result)
 					return
 				} else {
@@ -79,22 +61,12 @@ func onKickedFromServerEvent(log logr.Logger, cfg *Config, c *HttpClient) func(*
 			err := c.StartServer(s)
 			if err != nil {
 				log.Error(err, "error starting server", "server", s)
-				result := &proxy.RedirectPlayerKickResult{Message: &component.Text{
-					Content: "Error starting server",
-					S: component.Style{
-						Color: color.Red,
-					},
-				}}
+				result := &proxy.RedirectPlayerKickResult{Message: chatfmt.Render("Pelican", cfg.Prefix, cfg.Messages.ErrorStarting)}
 				e.SetResult(result)
 				return
 			}
 
-			result := &proxy.RedirectPlayerKickResult{Message: &component.Text{
-				Content: "Starting server...",
-				S: component.Style{
-					Color: color.Yellow,
-				},
-			}}
+			result := &proxy.RedirectPlayerKickResult{Message: chatfmt.Render("Pelican", cfg.Prefix, cfg.Messages.StartingServer)}
 			e.SetResult(result)
 			wakeSent[s] = time.Now()
 		}

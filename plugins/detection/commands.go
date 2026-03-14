@@ -8,22 +8,41 @@ import (
 	"sync"
 
 	guuid "github.com/google/uuid"
+	sharedcfg "github.com/minekube/gate-plugin-template/plugins/sharedconfig"
+	"github.com/minekube/gate-plugin-template/util/chatfmt"
 	"go.minekube.com/brigodier"
-	. "go.minekube.com/common/minecraft/component"
+	"go.minekube.com/common/minecraft/component"
 	"go.minekube.com/gate/pkg/command"
 	"go.minekube.com/gate/pkg/command/suggest"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
-const (
-	hsPrefix = "§bHackedServer §8| §r"
-	colGreen = "§a"
-	colGray  = "§8"
-	colGold  = "§e"
-	colRed   = "§c"
-	colAqua  = "§b"
-	colReset = "§r"
-)
+var detectionPrefix = "<gray>[<aqua>HackedServer</aqua>]</gray> "
+
+var detectionMessages = sharedcfg.DetectionMessages{
+	AvailableCommands:  "<gray>Available commands</gray>",
+	HelpReload:         "<dark_gray>/hs <gray>reload <dark_gray>» <gray>reload the plugin</gray>",
+	HelpCheck:          "<dark_gray>/hs <gray>check <aqua>target</aqua> <dark_gray>» <gray>check player detected mods</gray>",
+	HelpList:           "<dark_gray>/hs <gray>list <dark_gray>» <gray>list all spotted players</gray>",
+	ReloadFailed:       "<red>Reload failed: {error}</red>",
+	ReloadSuccess:      "<green>Successfully reloaded</green>",
+	PlayerNotFound:     "<red>Player not found: {player}</red>",
+	Checking:           "<aqua>Checking <gold>{player}</gold></aqua>",
+	DetectedMods:       "<green>Detected mods:</green>",
+	NoModsDetected:     "<green>No mods detected</green>",
+	ForgeMods:          "<green>Forge/NeoForge mods:</green>",
+	NoForgeMods:        "<green>No Forge mods detected</green>",
+	LunarMods:          "<green>Lunar Client mods:</green>",
+	NoLunarMods:        "<green>No Lunar Client mods detected</green>",
+	BedrockDetected:    "<green>Bedrock: yes</green>",
+	NoPlayersSpotted:   "<green>No chocolate players spotted</green>",
+	SpottedPlayers:     "<green>Spotted players:</green>",
+	ListBullet:         "<dark_gray>- <gold>{value}</gold></dark_gray>",
+	ModBullet:          "<dark_gray>- {value}</dark_gray>",
+	ModVersionBullet:   "<dark_gray>- {value} ({version})</dark_gray>",
+	LunarTypeSuffix:    " [{type}]",
+	LunarVersionSuffix: " ({version})",
+}
 
 // configHolder is a thread-safe wrapper that holds the current DetectionConfig
 // and the resources directory path needed to reload it.
@@ -92,12 +111,12 @@ func newDetectionCommand(
 
 	return brigodier.Literal("detection").
 		Executes(command.Command(func(c *command.Context) error {
-			return c.Source.SendMessage(&Text{Content: strings.Join([]string{
-				hsPrefix + "§7Available commands" + colReset,
-				colGray + "/hs " + "§7reload §8» §7reload the plugin" + colReset,
-				colGray + "/hs " + "§7check " + colAqua + "target §8» §7check player detected mods" + colReset,
-				colGray + "/hs " + "§7list §8» §7list all spotted players" + colReset,
-			}, "\n")})
+			return c.Source.SendMessage(detectionMessage(strings.Join([]string{
+				detectionMessages.AvailableCommands,
+				detectionMessages.HelpReload,
+				detectionMessages.HelpCheck,
+				detectionMessages.HelpList,
+			}, "\n")))
 		})).
 		Then(
 			brigodier.Literal("reload").
@@ -154,9 +173,9 @@ func playerNames(proxy *proxy.Proxy) []string {
 // handleReload reloads the TOML configuration from the submodule.
 func handleReload(c *command.Context, cfgHolder *configHolder) error {
 	if err := cfgHolder.reload(); err != nil {
-		return c.Source.SendMessage(&Text{Content: hsPrefix + colRed + fmt.Sprintf("Reload failed: %v", err) + colReset})
+		return c.Source.SendMessage(detectionMessage(chatfmt.ApplyPlaceholders(detectionMessages.ReloadFailed, map[string]string{"error": fmt.Sprintf("%v", err)})))
 	}
-	return c.Source.SendMessage(&Text{Content: hsPrefix + colGreen + "Successfully reloaded" + colReset})
+	return c.Source.SendMessage(detectionMessage(detectionMessages.ReloadSuccess))
 }
 
 // handleCheck shows detected mod information for the named player.
@@ -170,9 +189,7 @@ func handleCheck(
 	// Look up online player by name.
 	target := p.PlayerByName(username)
 	if target == nil {
-		return c.Source.SendMessage(&Text{
-			Content: hsPrefix + colRed + "Player not found: " + username + colReset,
-		})
+		return c.Source.SendMessage(detectionMessage(chatfmt.ApplyPlaceholders(detectionMessages.PlayerNotFound, map[string]string{"player": username})))
 	}
 
 	return formatCheckOutput(c, target.Username(), store.Get(gateUUIDToGoogle(target.ID())), cfgHolder.get())
@@ -187,18 +204,18 @@ func formatCheckOutput(
 	cfg *DetectionConfig,
 ) error {
 	var b strings.Builder
-	b.WriteString(hsPrefix + colAqua + "Checking " + colGold + username + colReset + "\n")
+	b.WriteString(chatfmt.ApplyPlaceholders(detectionMessages.Checking, map[string]string{"player": username}) + "\n")
 
 	// ── Generic checks ────────────────────────────────────────────────────────
 	checks := dp.GenericChecks()
 	sort.Strings(checks)
 	if len(checks) > 0 {
-		b.WriteString(hsPrefix + colGreen + "Detected mods:" + colReset + "\n")
+		b.WriteString(detectionMessages.DetectedMods + "\n")
 		for _, check := range checks {
-			b.WriteString(colGray + "- " + colGold + check + colReset + "\n")
+			b.WriteString(chatfmt.ApplyPlaceholders(detectionMessages.ListBullet, map[string]string{"value": check}) + "\n")
 		}
 	} else {
-		b.WriteString(hsPrefix + colGreen + "No mods detected" + colReset + "\n")
+		b.WriteString(detectionMessages.NoModsDetected + "\n")
 	}
 
 	// ── Forge mods (if ShowModsInCheck is enabled) ─────────────────────────
@@ -208,16 +225,16 @@ func formatCheckOutput(
 			sort.Slice(mods, func(i, j int) bool {
 				return mods[i].ModID < mods[j].ModID
 			})
-			b.WriteString(hsPrefix + colGreen + "Forge/NeoForge mods:" + colReset + "\n")
+			b.WriteString(detectionMessages.ForgeMods + "\n")
 			for _, m := range mods {
 				if cfg.Forge.Settings.ShowModVersions && m.Version != "" {
-					b.WriteString(fmt.Sprintf("%s- %s (%s)%s\n", colGray, m.ModID, m.Version, colReset))
+					b.WriteString(chatfmt.ApplyPlaceholders(detectionMessages.ModVersionBullet, map[string]string{"value": m.ModID, "version": m.Version}) + "\n")
 				} else {
-					b.WriteString(fmt.Sprintf("%s- %s%s\n", colGray, m.ModID, colReset))
+					b.WriteString(chatfmt.ApplyPlaceholders(detectionMessages.ModBullet, map[string]string{"value": m.ModID}) + "\n")
 				}
 			}
 		} else {
-			b.WriteString(hsPrefix + colGreen + "No Forge mods detected" + colReset + "\n")
+			b.WriteString(detectionMessages.NoForgeMods + "\n")
 		}
 	}
 
@@ -228,28 +245,28 @@ func formatCheckOutput(
 			sort.Slice(mods, func(i, j int) bool {
 				return mods[i].ID < mods[j].ID
 			})
-			b.WriteString(hsPrefix + colGreen + "Lunar Client mods:" + colReset + "\n")
+			b.WriteString(detectionMessages.LunarMods + "\n")
 			for _, m := range mods {
-				line := fmt.Sprintf("%s- %s", colGray, m.ID)
+				line := chatfmt.ApplyPlaceholders(detectionMessages.ModBullet, map[string]string{"value": m.ID})
 				if cfg.Lunar.Settings.ShowModVersions && m.Version != "" {
-					line += fmt.Sprintf(" (%s)", m.Version)
+					line += chatfmt.ApplyPlaceholders(detectionMessages.LunarVersionSuffix, map[string]string{"version": m.Version})
 				}
 				if cfg.Lunar.Settings.ShowModTypes && m.Type != "" {
-					line += fmt.Sprintf(" [%s]", m.Type)
+					line += chatfmt.ApplyPlaceholders(detectionMessages.LunarTypeSuffix, map[string]string{"type": m.Type})
 				}
-				b.WriteString(line + colReset + "\n")
+				b.WriteString(line + "\n")
 			}
 		} else {
-			b.WriteString(hsPrefix + colGreen + "No Lunar Client mods detected" + colReset + "\n")
+			b.WriteString(detectionMessages.NoLunarMods + "\n")
 		}
 	}
 
 	// ── Bedrock ───────────────────────────────────────────────────────────
 	if dp.IsBedrockDetected() {
-		b.WriteString(hsPrefix + colGreen + "Bedrock: yes" + colReset + "\n")
+		b.WriteString(detectionMessages.BedrockDetected + "\n")
 	}
 
-	return c.Source.SendMessage(&Text{Content: strings.TrimRight(b.String(), "\n")})
+	return c.Source.SendMessage(detectionMessage(strings.TrimRight(b.String(), "\n")))
 }
 
 // handleList lists all online players that have at least one generic check triggered.
@@ -281,7 +298,7 @@ type namedCheckEntry struct {
 // Extracted for testability without a real *proxy.Proxy.
 func handleListFromEntries(c *command.Context, entries []namedCheckEntry) error {
 	if len(entries) == 0 {
-		return c.Source.SendMessage(&Text{Content: hsPrefix + colGreen + "No chocolate players spotted" + colReset})
+		return c.Source.SendMessage(detectionMessage(detectionMessages.NoPlayersSpotted))
 	}
 
 	sort.Slice(entries, func(i, j int) bool {
@@ -289,9 +306,13 @@ func handleListFromEntries(c *command.Context, entries []namedCheckEntry) error 
 	})
 
 	var b strings.Builder
-	b.WriteString(hsPrefix + colGreen + "Spotted players:" + colReset + "\n")
+	b.WriteString(detectionMessages.SpottedPlayers + "\n")
 	for _, e := range entries {
-		b.WriteString(colGray + "- " + colGold + e.name + colReset + "\n")
+		b.WriteString(chatfmt.ApplyPlaceholders(detectionMessages.ListBullet, map[string]string{"value": e.name}) + "\n")
 	}
-	return c.Source.SendMessage(&Text{Content: strings.TrimRight(b.String(), "\n")})
+	return c.Source.SendMessage(detectionMessage(strings.TrimRight(b.String(), "\n")))
+}
+
+func detectionMessage(message string) component.Component {
+	return chatfmt.Render("HackedServer", detectionPrefix, message)
 }
