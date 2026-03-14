@@ -109,9 +109,7 @@ func newDetectionCommand(
 			brigodier.Literal("check").
 				Then(
 					brigodier.Argument(playerArg, brigodier.String).
-						Suggests(command.SuggestFunc(func(_ *command.Context, b *brigodier.SuggestionsBuilder) *brigodier.Suggestions {
-							return suggestPlayerNames(b, onlinePlayerNames(p))
-						})).
+						Suggests(playerSuggestionProvider(p)).
 						Executes(command.Command(func(c *command.Context) error {
 							return handleCheck(c, p, store, cfgHolder, c.String(playerArg))
 						})),
@@ -125,23 +123,32 @@ func newDetectionCommand(
 		)
 }
 
-func onlinePlayerNames(p *proxy.Proxy) []string {
-	if p == nil {
-		return nil
-	}
-	names := make([]string, 0, len(p.Players()))
-	for _, player := range p.Players() {
-		names = append(names, player.Username())
-	}
-	return names
+func playerSuggestionProvider(proxy *proxy.Proxy, additionalPlayers ...string) brigodier.SuggestionProvider {
+	return command.SuggestFunc(func(
+		_ *command.Context,
+		b *brigodier.SuggestionsBuilder,
+	) *brigodier.Suggestions {
+		candidates := append(playerNames(proxy), additionalPlayers...)
+		return suggest.Similar(b, candidates).Build()
+	})
 }
 
 func suggestPlayerNames(b *brigodier.SuggestionsBuilder, names []string) *brigodier.Suggestions {
 	if len(names) == 0 {
 		return b.Build()
 	}
-	sort.Strings(names)
 	return suggest.Similar(b, names).Build()
+}
+
+func playerNames(proxy *proxy.Proxy) []string {
+	if proxy == nil {
+		return nil
+	}
+	names := make([]string, 0, len(proxy.Players()))
+	for _, player := range proxy.Players() {
+		names = append(names, player.Username())
+	}
+	return names
 }
 
 // handleReload reloads the TOML configuration from the submodule.
