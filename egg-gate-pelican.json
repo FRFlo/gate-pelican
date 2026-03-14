@@ -1,55 +1,52 @@
 {
-    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PANEL",
-    "meta": {
-        "version": "PTDL_v2",
-        "update_url": null
+  "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PANEL",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-01-28T00:00:00+00:00",
+  "name": "gate-plugged",
+  "author": "admin@frflo.ovh",
+  "description": "Gate proxy Minecraft avec plugin Pelican pour la gestion automatique des serveurs",
+  "features": [],
+  "docker_images": {
+    "ghcr.io/parkervcp/yolks:debian": "ghcr.io/parkervcp/yolks:debian"
+  },
+  "file_denylist": [],
+  "startup": "./${EXECUTABLE}",
+  "config": {
+    "files": "{}",
+    "startup": "{\n    \"done\": \"Gate Pelican started\"\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\n# gate-plugged installation script\n\nif [ ! -d /mnt/server/ ]; then\n    mkdir -p /mnt/server/\nfi\n\n# Utiliser /mnt/server/.build pour éviter les problèmes d'espace disque dans /tmp\nBUILD_DIR=\"/mnt/server/.build\"\nGOTMPDIR=\"${BUILD_DIR}/gotmp\"\n\nexport GOTMPDIR\n\n# Nettoyer le répertoire de build précédent\nif [ -d \"${BUILD_DIR}\" ]; then\n    rm -rf \"${BUILD_DIR}\"\nfi\n\nmkdir -p \"${BUILD_DIR}\"\nmkdir -p \"${GOTMPDIR}\"\n\n# Récupérer le code source\nif [ -z \"${GO_PACKAGE}\" ]; then\n    echo \"Error: GO_PACKAGE variable is required\"\n    exit 1\nfi\n\n# Détecter si c'est une URL Git complète ou un module Go\nif [[ \"${GO_PACKAGE}\" == http* ]] || [[ \"${GO_PACKAGE}\" == git@* ]]; then\n    # C'est une URL Git complète\n    REPO_DIR=\"${BUILD_DIR}/gate-plugged\"\n    \n    git clone \"${GO_PACKAGE}\" \"${REPO_DIR}\"\n    cd \"${REPO_DIR}\"\nelse\n    # C'est un module Go, utiliser go get avec GOPATH classique\n    export GOPATH=\"${BUILD_DIR}/go\"\n    \n    mkdir -p \"${GOPATH}/src\"\n    cd \"${GOPATH}/src\"\n    \n    go get -d \"${GO_PACKAGE}\"\n    \n    cd \"${GO_PACKAGE}\"\nfi\n\n# Télécharger les dépendances\nif [ -f go.mod ]; then\n    go mod download\nelse\n    echo \"Warning: go.mod not found, skipping go mod download\"\nfi\n\n# Compiler le projet\nif [ -f gate.go ]; then\n    go build -ldflags=\"-s -w\" -o gate gate.go\n    \n    BUILD_STATUS=$?\n    \n    # Copier l'exécutable\n    if [ $BUILD_STATUS -eq 0 ]; then\n        cp -f gate /mnt/server/\n        \n        # Copier les fichiers de configuration uniquement s'ils n'existent pas déjà\n        if [ -f config.yml ]; then\n            [ ! -f /mnt/server/config.yml ] && cp config.yml /mnt/server/ 2>/dev/null || true\n        fi\n        \n        if [ -f plugged.yml ]; then\n            [ ! -f /mnt/server/pelican.yml ] && cp pelican.yml /mnt/server/ 2>/dev/null || true\n        fi\n        \n        echo \"Build completed successfully\"\n    else\n        echo \"Error: Build failed\"\n        exit 1\n    fi\n    \n    # Nettoyer les fichiers temporaires de build\n    rm -rf \"${BUILD_DIR}\"\nelse\n    echo \"Error: gate.go not found\"\n    exit 1\nfi",
+      "container": "golang:1.25",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Go Package",
+      "description": "URL Git complète ou module Go à récupérer et compiler (ex: https://github.com/FRFlo/gate-plugged ou github.com/FRFlo/gate-plugged)",
+      "env_variable": "GO_PACKAGE",
+      "default_value": "https://github.com/FRFlo/gate-plugged",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
     },
-    "exported_at": "2026-01-28T00:00:00+00:00",
-    "name": "gate-pelican",
-    "author": "admin@frflo.ovh",
-    "uuid": "cd1c6035-7b36-4fd6-8a08-1e518b9f5828",
-    "description": "Gate proxy Minecraft avec plugin Pelican pour la gestion automatique des serveurs",
-    "features": null,
-    "docker_images": {
-        "ghcr.io/parkervcp/yolks:debian": "ghcr.io/parkervcp/yolks:debian"
-    },
-    "file_denylist": [],
-    "startup": "./${EXECUTABLE}",
-    "config": {
-        "files": "{}",
-        "startup": "{\n    \"done\": \"Gate Pelican started\"\n}",
-        "logs": "{}",
-        "stop": "^C"
-    },
-    "scripts": {
-        "installation": {
-            "script": "#!/bin/bash\n# gate-pelican installation script\n\nif [ ! -d /mnt/server/ ]; then\n    mkdir -p /mnt/server/\nfi\n\n# Utiliser /mnt/server/.build pour éviter les problèmes d'espace disque dans /tmp\nBUILD_DIR=\"/mnt/server/.build\"\nGOTMPDIR=\"${BUILD_DIR}/gotmp\"\n\nexport GOTMPDIR\n\n# Nettoyer le répertoire de build précédent\nif [ -d \"${BUILD_DIR}\" ]; then\n    rm -rf \"${BUILD_DIR}\"\nfi\n\nmkdir -p \"${BUILD_DIR}\"\nmkdir -p \"${GOTMPDIR}\"\n\n# Récupérer le code source\nif [ -z \"${GO_PACKAGE}\" ]; then\n    echo \"Error: GO_PACKAGE variable is required\"\n    exit 1\nfi\n\n# Détecter si c'est une URL Git complète ou un module Go\nif [[ \"${GO_PACKAGE}\" == http* ]] || [[ \"${GO_PACKAGE}\" == git@* ]]; then\n    # C'est une URL Git complète\n    REPO_DIR=\"${BUILD_DIR}/gate-pelican\"\n    \n    git clone \"${GO_PACKAGE}\" \"${REPO_DIR}\"\n    cd \"${REPO_DIR}\"\nelse\n    # C'est un module Go, utiliser go get avec GOPATH classique\n    export GOPATH=\"${BUILD_DIR}/go\"\n    \n    mkdir -p \"${GOPATH}/src\"\n    cd \"${GOPATH}/src\"\n    \n    go get -d \"${GO_PACKAGE}\"\n    \n    cd \"${GO_PACKAGE}\"\nfi\n\n# Télécharger les dépendances\nif [ -f go.mod ]; then\n    go mod download\nelse\n    echo \"Warning: go.mod not found, skipping go mod download\"\nfi\n\n# Compiler le projet\nif [ -f gate.go ]; then\n    go build -ldflags=\"-s -w\" -o gate gate.go\n    \n    BUILD_STATUS=$?\n    \n    # Copier l'exécutable\n    if [ $BUILD_STATUS -eq 0 ]; then\n        cp -f gate /mnt/server/\n        \n        # Copier les fichiers de configuration uniquement s'ils n'existent pas déjà\n        if [ -f config.yml ]; then\n            [ ! -f /mnt/server/config.yml ] && cp config.yml /mnt/server/ 2>/dev/null || true\n        fi\n        \n        if [ -f pelican.yml ]; then\n            [ ! -f /mnt/server/pelican.yml ] && cp pelican.yml /mnt/server/ 2>/dev/null || true\n        fi\n        \n        echo \"Build completed successfully\"\n    else\n        echo \"Error: Build failed\"\n        exit 1\n    fi\n    \n    # Nettoyer les fichiers temporaires de build\n    rm -rf \"${BUILD_DIR}\"\nelse\n    echo \"Error: gate.go not found\"\n    exit 1\nfi",
-            "container": "golang:1.25",
-            "entrypoint": "bash"
-        }
-    },
-    "variables": [
-        {
-            "name": "Go Package",
-            "description": "URL Git complète ou module Go à récupérer et compiler (ex: https://github.com/FRFlo/gate-pelican ou github.com/FRFlo/gate-pelican)",
-            "env_variable": "GO_PACKAGE",
-            "default_value": "https://github.com/FRFlo/gate-pelican",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "required|string",
-            "sort": null,
-            "field_type": "text"
-        },
-        {
-            "name": "Executable",
-            "description": "Nom de l'exécutable généré par la compilation",
-            "env_variable": "EXECUTABLE",
-            "default_value": "gate",
-            "user_viewable": true,
-            "user_editable": false,
-            "rules": "required|string",
-            "sort": null,
-            "field_type": "text"
-        }
-    ]
+    {
+      "name": "Executable",
+      "description": "Nom de l'exécutable généré par la compilation",
+      "env_variable": "EXECUTABLE",
+      "default_value": "gate",
+      "user_viewable": true,
+      "user_editable": false,
+      "rules": "required|string",
+      "field_type": "text"
+    }
+  ]
 }
